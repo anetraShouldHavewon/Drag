@@ -1,0 +1,10 @@
+/*General Styling*/
+ul{
+    list-style-type: none;
+    overflow: visible;
+}
+
+li{
+    float: inline-start;
+    padding-right: 5%;
+}
