@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-import sqlite3
+
 
 app = Flask(__name__)
 @app.route("/home")
@@ -13,7 +13,7 @@ def season_info():
 
 @app.route("/drag_queens")
 def drag_queens():
-    SELECT * FROM Drag_Queens
+    # SELECT * FROM Drag_Queens
 
 @app.route("/drag_queen_info")
 def drag_queen_info():
