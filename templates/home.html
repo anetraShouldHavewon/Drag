@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class = "home_hero">
+    <h1>Rerank the latest season!</h1>
+    <h2>{{season_description}}</h2>
+    <a href = "/drag_queen_info/1"><button>Get started</button></a>
+</div>
+
+
+<div class = "home_banner">
+    <h1>If you were Rupaul...</h1>
+</div>
+
+<div class = "home_grid">
+    {% for name in drag_names %}
+    <div class = "drag_queen_circle">{{name}}</div>
+    {% endfor %}
+</div>
+</div>
+{% endblock %}
