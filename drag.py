@@ -13,12 +13,12 @@ def sql(fetchone, query, constraint):
         if fetchone is True:
             result = cursor.execute(query).fetchone()
         if fetchone is False: # if the query needs a fetchall
-            results = cursor.execute(query).fetchall()
+            result = cursor.execute(query).fetchall()
     else:
         if fetchone is True:
             result = cursor.execute(query, (constraint,)).fetchone()
         if fetchone is False: # if the query needs a fetchall
-            results = cursor.execute(query, (constraint,)).fetchall()
+            result = cursor.execute(query, (constraint,)).fetchall()
 
     return result
 
@@ -26,7 +26,7 @@ def sql(fetchone, query, constraint):
 def home():
     season_description = sql(True, "SELECT description FROM Season WHERE name = 'Season 16'", None)[0]
     drag_queen_names = []
-    for id in range(1,5): # change later to have minimum and maximum or random or most prominant
+    for id in range(1, 5): # change later to have minimum and maximum or random or most prominant
         drag_name = sql(True, "SELECT name FROM Drag_Queens WHERE id = ?", id)[0]
         drag_queen_names.append(drag_name)
     return render_template("home.html", drag_names = drag_queen_names, season_description = season_description, title = "Drag Queens")
