@@ -16,10 +16,11 @@
 
 <h1>Meet the Queens</h1>
 <div class = "home_grid">
-    {% for name in drag_names %}
-    <div class = "drag_queen">
-        <div class = "drag_queen_circle"></div>
-        <div class = "drag_queen_name">{{name}}</div>
+    {% for i in range(0, drag_names|length) %}
+    <a href = "/drag_queen_info/{{i+1}}">
+    <div class = "home_drag_queen">
+        <div class = "drag_queen_circle"><p>img</p></div>
+        <div class = "home_drag_queen_name">{{drag_names[i]}}</div>
     </div>
     {% endfor %}
 </div>
