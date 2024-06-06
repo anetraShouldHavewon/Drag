@@ -5,8 +5,9 @@ import sqlite3
 app = Flask(__name__)
 
 def sql(fetchone, query, constraint):
-    '''Executes sql queries based on whether they can be executed with a fetchone or fetchall'''
-    '''Gives one result if fetchone, gives a list of results if fetchall'''
+    '''Executes sql queries based on whether they can be executed with a '''
+    '''fetchone or fetchall. Gives one result if fetchone, gives a list of'''
+    '''results if fetchall'''
     connection = sqlite3.connect("drag_queen.db")
     cursor = connection.cursor()
     if constraint is None:
@@ -38,7 +39,7 @@ def home():
     for id in range(1, 5): # change later to have minimum and maximum or random or most prominant
         drag_name = sql(True, "SELECT name FROM Drag_Queens WHERE id = ?", id)[0]
         drag_queen_names.append(drag_name)
-    return render_template("home.html", drag_names = drag_queen_names, season_description = season_description, title = "Home")
+    return render_template("home.html", drag_names=drag_queen_names, season_description=season_description, title="Home")
 
 @app.route("/seasons")
 def seasons():
@@ -47,7 +48,7 @@ def seasons():
     for name in season_names_info:
         season_names.append(name)
 
-    return render_template("seasons.html", season_names = season_names, title = "Seasons")
+    return render_template("seasons.html", season_names=season_names, title="Seasons")
 
 @app.route("/season_info/<int:id>")
 def season_info(id):
@@ -57,7 +58,7 @@ def season_info(id):
     season_episodes_ids = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ?", id, 0)
     season_episodes_names = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ?", id, 1)
     
-    return render_template("season_info.html", season_name = season_name, season_queens = season_queens, season_episodes = season_episodes, title = "Season Information")
+    return render_template("season_info.html", season_name=season_name, season_queens_ids=season_queens_ids, season_queens_name=season_queens_name, season_episodes_ids=season_episodes_ids, season_episodes_names=season_episodes_names, title="Season Information")
 
 @app.route("/drag_queens")
 def drag_queens():
@@ -70,7 +71,7 @@ def drag_queens():
         drag_queen_ids.append(drag_queens_info[queen][0])
         drag_queen_names.append(drag_queens_info[queen][1])
         
-    return render_template("drag_queens.html", drag_queen_ids = drag_queen_ids, drag_queen_names = drag_queen_names, title = "Drag Queens")
+    return render_template("drag_queens.html", drag_queen_ids=drag_queen_ids, drag_queen_names=drag_queen_names, title="Drag Queens")
 
 @app.route("/drag_queen_info/<int:id>")
 def drag_queen_info(id):
@@ -79,12 +80,12 @@ def drag_queen_info(id):
     specialty_skills = drag_queen_info[2]
     city = drag_queen_info[4]
     age = drag_queen_info[5]
-    return render_template("drag_queen_info.html", name = name, specialty_skills = specialty_skills, city = city, age = age, drag_queen = drag_queen_info, title = "Drag Queen Information")
+    return render_template("drag_queen_info.html", name=name, specialty_skills=specialty_skills, city=city, age=age, drag_queen=drag_queen_info, title="Drag Queen Information")
 
 @app.route("/episode_info/<int:id>")
 def episode_info(id):
     
-    return render_template("drag_queens.html", episode_name = episode_name, title = "Episode Information")
+    return render_template("drag_queens.html", episode_name=episode_name, title="Episode Information")
 
 if __name__ == "__main__":
     app.run(debug=True)
