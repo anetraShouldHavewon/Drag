@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class = "seasons_latest">
+    {% for name in season_names %} <!--change to latest-->
+    <div class = "season_latest_poster">
+        <h3>{{name}}</h3>
+    </div>
+    {% endfor %} 
+</div>
+<div class = "seasons_main_season">
+    {% for name in season_names %} <!--change to latest-->
+    <div class = "season_main_season_poster">
+        <h3>{{name}}</h3>
+    </div>
+    {% endfor %} 
+</div>
+{% endblock %}

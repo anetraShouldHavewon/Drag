@@ -23,8 +23,9 @@ for id in range(1,5):
         drag_name = sql(True, "SELECT name FROM Drag_Queens WHERE id = ?", id)[0]
         drag_queen_names.append(drag_name)
 
-x = sql(False, "SELECT Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = 1", None)
-drag_queen_names = []
-for queen in range(len(x)):
-    drag_queen_names.append(x[queen][0])
-print(drag_queen_names)
+season_names_info = sql(False, 'SELECT Season.name FROM Season WHERE franchise_id = (SELECT id FROM Franchises WHERE name = "Rupaul's Drag Race")', None)
+season_names = []
+for name in season_names_info:
+    season_names.append(name)
+
+print(season_names)

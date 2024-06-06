@@ -29,15 +29,23 @@ def home():
     for id in range(1, 5): # change later to have minimum and maximum or random or most prominant
         drag_name = sql(True, "SELECT name FROM Drag_Queens WHERE id = ?", id)[0]
         drag_queen_names.append(drag_name)
-    return render_template("home.html", drag_names = drag_queen_names, season_description = season_description, title = "Drag Queens")
+    return render_template("home.html", drag_names = drag_queen_names, season_description = season_description, title = "Home")
 
 @app.route("/seasons")
 def seasons():
-    return render_template("drag_queens.html", title = "Drag Queens")
+    season_names_info = sql(False, "SELECT Season.name FROM Season WHERE franchise_id = (SELECT id FROM Franchises WHERE name = 'Rupaul's Drag Race')", None)
+    season_names = []
+    for name in season_names_info:
+        season_names.append(name)
 
-@app.route("/season_info")
+    return render_template("seasons.html", season_names = season_names, title = "Seasons")
+
+@app.route("/season_info/<int:id>")
 def season_info():
-    return render_template("drag_queens.html", title = "Drag Queens")
+    season_name = sql(True, "SELECT name FROM Season WHERE id = ?", id)
+    season_queens = sql(False, "SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id)
+    season_episodes = sql(False, "SELECT id, name FROM Episodes WHERE season_id = ?", id)
+    return render_template("season_info.html", season_name = season_name, season_queens = season_queens, season_episodes = season_episodes, title = "Season Information")
 
 @app.route("/drag_queens")
 def drag_queens():
@@ -61,9 +69,10 @@ def drag_queen_info(id):
     age = drag_queen_info[5]
     return render_template("drag_queen_info.html", name = name, specialty_skills = specialty_skills, city = city, age = age, drag_queen = drag_queen_info, title = "Drag Queen Information")
 
-@app.route("/episode_info")
-def episode_info():
-    return render_template("drag_queens.html", title = "Drag Queens")
+@app.route("/episode_info/<int:id>")
+def episode_info(id):
+    
+    return render_template("drag_queens.html", episode_name = episode_name, title = "Episode Information")
 
 if __name__ == "__main__":
     app.run(debug=True)
