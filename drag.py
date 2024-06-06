@@ -22,6 +22,15 @@ def sql(fetchone, query, constraint):
 
     return result
 
+
+def fetchall_info_list(fetch_query, query_condition, column_index):
+    '''This function puts all the output from a fetchall query into a list'''
+    fetchall_output = sql(False, fetch_query, query_condition)
+    return_list = []
+    for item in fetchall_output:
+        return_list.append(item[column_index])
+    return return_list
+
 @app.route("/")
 def home():
     season_description = sql(True, "SELECT description FROM Season WHERE name = 'Season 16'", None)[0]
@@ -33,7 +42,7 @@ def home():
 
 @app.route("/seasons")
 def seasons():
-    season_names_info = sql(False, "SELECT Season.name FROM Season WHERE franchise_id = (SELECT id FROM Franchises WHERE name = 'Rupaul's Drag Race')", None)
+    season_names_info = sql(False, "SELECT Season.name FROM Season WHERE franchise_id = 1", None)
     season_names = []
     for name in season_names_info:
         season_names.append(name)
@@ -41,10 +50,13 @@ def seasons():
     return render_template("seasons.html", season_names = season_names, title = "Seasons")
 
 @app.route("/season_info/<int:id>")
-def season_info():
-    season_name = sql(True, "SELECT name FROM Season WHERE id = ?", id)
-    season_queens = sql(False, "SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id)
-    season_episodes = sql(False, "SELECT id, name FROM Episodes WHERE season_id = ?", id)
+def season_info(id):
+    season_name = sql(True, "SELECT name FROM Season WHERE id = ?", id)[0]
+    season_queens_ids = fetchall_info_list("SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 0)
+    season_queens_name = fetchall_info_list("SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 1)
+    season_episodes_ids = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ?", id, 0)
+    season_episodes_names = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ?", id, 1)
+    
     return render_template("season_info.html", season_name = season_name, season_queens = season_queens, season_episodes = season_episodes, title = "Season Information")
 
 @app.route("/drag_queens")

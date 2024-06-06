@@ -18,14 +18,14 @@ def sql(fetchone, query, constraint):
 
     return result
 
-drag_queen_names = []
-for id in range(1,5):
-        drag_name = sql(True, "SELECT name FROM Drag_Queens WHERE id = ?", id)[0]
-        drag_queen_names.append(drag_name)
+def fetchall_info_list(fetch_query, query_condition, column_index):
+    '''This function puts all the output from a fetchall query into a list'''
+    fetchall_output = sql(False, fetch_query, query_condition)
+    return_list = []
+    for item in fetchall_output:
+        return_list.append(item[column_index])
+    return return_list
 
-season_names_info = sql(False, 'SELECT Season.name FROM Season WHERE franchise_id = (SELECT id FROM Franchises WHERE name = "Rupaul's Drag Race")', None)
-season_names = []
-for name in season_names_info:
-    season_names.append(name)
+season_queens_id = fetchall_info_list("SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", 1, 0)
 
-print(season_names)
+print(season_queens_id)
