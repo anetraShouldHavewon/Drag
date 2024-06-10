@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class = "episode_header">
+    <div class = "episode_info">
+        <h1>{{episode_name}}</h1>
+        <h2>Challenge Type: {{episode_challenge_type}}</h2>
+        <p>{{episode_challenge_description}}</p>
+    </div>
+    <div class = "episode_img">
+    </div>
+</div>
+
+<div class = "episode_queen_rankings">
+{% for queen_list in queen_rankings %}
+{% if queen_list = winner %}
+{% endif %}
+{% endfor %}
+</div>
+{% endblock %}

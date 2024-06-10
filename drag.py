@@ -43,20 +43,20 @@ def home():
 
 @app.route("/seasons")
 def seasons():
-    season_names_info = sql(False, "SELECT Season.name FROM Season WHERE franchise_id = 1", None)
-    season_names = []
-    for name in season_names_info:
-        season_names.append(name)
+    season_ids = fetchall_info_list("SELECT id FROM Season WHERE franchise_id = 1", None, 0)
+    season_names = fetchall_info_list("SELECT name FROM Season WHERE franchise_id = 1", None, 0)
+    franchise_names = fetchall_info_list("SELECT name FROM Franchises", None, 0)
+    # INI change code to be more responsive with more seasons
 
-    return render_template("seasons.html", season_names=season_names, title="Seasons")
+    return render_template("seasons.html", season_ids=season_ids, season_names=season_names, franchise_names=franchise_names, title="Seasons")
 
 @app.route("/season_info/<int:id>")
 def season_info(id):
     season_name = sql(True, "SELECT name FROM Season WHERE id = ?", id)[0]
     season_queens_ids = fetchall_info_list("SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 0)
     season_queens_name = fetchall_info_list("SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 1)
-    season_episodes_ids = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ?", id, 0)
-    season_episodes_names = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ?", id, 1)
+    season_episodes_ids = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 0)
+    season_episodes_names = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 1)
     
     return render_template("season_info.html", season_name=season_name, season_queens_ids=season_queens_ids, season_queens_name=season_queens_name, season_episodes_ids=season_episodes_ids, season_episodes_names=season_episodes_names, title="Season Information")
 
@@ -84,8 +84,36 @@ def drag_queen_info(id):
 
 @app.route("/episode_info/<int:id>")
 def episode_info(id):
+    episode_info = sql(True, "SELECT name, challenge_description FROM Episodes WHERE id = ?", id)
+    episode_name = episode_info[0]
+    episode_challenge_description = episode_info[1]
+    episode_challenge_type = sql(True, "SELECT Maxi_Challenge_Type.name FROM Episodes JOIN Maxi_Challenge_Type ON Episodes.maxi_challenge_type_id = Maxi_Challenge_Type.id WHERE Episodes.id = ?", id)[0]
+    episode_queens = fetchall_info_list("SELECT Drag_Queens.name, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
+    episode_placing_ids = fetchall_info_list("SELECT Drag_Queen_Episodes.placing_id JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
+   
+    safe_queens = []
+    immune = []
+    winner = []
+    top_2 = []
+    eliminated = []
+    bottom_2 = []
+
+    for index in range(len(episode_queens)):
+        if episode_placing_ids[index] == 4:
+            safe_queens.append(episode_queens[index])
+        if episode_placing_ids[index] == 1:
+            immune.append(episode_queens[index])
+        if episode_placing_ids[index] == 8:
+            winner.append(episode_queens[index])
+        if episode_placing_ids[index] == 7:
+            top_2.append(episode_queens[index])
+        if episode_placing_ids[index] == 2:
+            eliminated.append(episode_queens[index])
+        if episode_placing_ids[index] == 6:
+            bottom_2.append(episode_queens[index])
+    queen_rankings = [ winner, top_2, safe_queens, bottom_2, eliminated, immune] 
     
-    return render_template("drag_queens.html", episode_name=episode_name, title="Episode Information")
+    return render_template("episode_info.html", queen_rankings=queen_rankings, episode_name=episode_name, episode_challenge_description=episode_challenge_description, episode_challenge_type=episode_challenge_type, title="Episode Information")
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -8,12 +8,12 @@
     <h2>Queens of the Season</h2>
     <div class = "season_queens">
         {% for index in range(0, season_queens_ids|length) %}
-        <div class = "season_queen">
-            <a href = "/drag_queen_info/{{season_queens_ids[index]}}">
-                <div class = "drag_queen_circle season_queen_circle"><h2>drag queen img</h2></div>
+        <a href = "/drag_queen_info/{{season_queens_ids[index]}}">
+            <div class = "season_queen">
+                <div class = "drag_queen_circle season_queen_circle"><p>drag queen img</p></div>
                 <div class = "season_queen_name">{{season_queens_name[index]}}</div>
-            </a>
-        </div>
+            </div>
+        </a>
         {% endfor %}
     </div>
     
@@ -23,12 +23,11 @@
     <h2>Rerank the Queens in Each Episode</h2>
     <div class = "episodes">
         {% for index in range(0, season_episodes_ids|length) %}
-        <div class = "episode">
-            <a href = "/drag_queen_info/{{season_queens_ids[index]}}">
-                <div class = "drag_queen_circle season_queen_circle"><h2>drag queen img</h2></div>
-                <div class = "season_queen_name">{{season_queens_name[index]}}</div>
-            </a>
-        </div>
+        <a href = "/episode_info/{{season_episodes_ids[index]}}">
+            <div class = "episode">
+                <h3>{{season_episodes_names[index]}}</h3>   
+            </div>
+        </a>
         {% endfor %}
     </div>
     
