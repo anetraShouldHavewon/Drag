@@ -89,7 +89,7 @@ def episode_info(id):
     episode_challenge_description = episode_info[1]
     episode_challenge_type = sql(True, "SELECT Maxi_Challenge_Type.name FROM Episodes JOIN Maxi_Challenge_Type ON Episodes.maxi_challenge_type_id = Maxi_Challenge_Type.id WHERE Episodes.id = ?", id)[0]
     episode_queens = fetchall_info_list("SELECT Drag_Queens.name, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
-    episode_placing_ids = fetchall_info_list("SELECT Drag_Queen_Episodes.placing_id JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
+    episode_placing_ids = fetchall_info_list("SELECT Drag_Queen_Episodes.placing_id FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
    
     safe_queens = []
     immune = []
@@ -111,7 +111,7 @@ def episode_info(id):
             eliminated.append(episode_queens[index])
         if episode_placing_ids[index] == 6:
             bottom_2.append(episode_queens[index])
-    queen_rankings = [ winner, top_2, safe_queens, bottom_2, eliminated, immune] 
+    queen_rankings = [winner, top_2, safe_queens, bottom_2, eliminated, immune] 
     
     return render_template("episode_info.html", queen_rankings=queen_rankings, episode_name=episode_name, episode_challenge_description=episode_challenge_description, episode_challenge_type=episode_challenge_type, title="Episode Information")
 
