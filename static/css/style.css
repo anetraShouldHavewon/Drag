@@ -195,11 +195,36 @@ ul li{
 .episode_header{
     display: grid;
     grid-template-columns: 60% 30%;
+    clear: both;
+    height: 60vh;
+    padding-bottom: 10vh;
 }
 
 .episode_img{
     background-color: #e4ccff;
-    height: 100%;
+    height: 70%;
     margin-left: 10%;
     margin-top: 10%;
+}
+
+.episode_queen_rankings{
+    display: grid;
+    grid-template-columns: 20% auto;
+}
+
+.episode_queen_graph{
+    border: solid 4px lavender;
+}
+
+.episode_rank{
+    text-align: center;
+}
+
+.episode_drag_queen{
+    display: flex;
+    padding-left: 1vw;
+}
+.episode_circle{
+    height: 5vw;
+    width: 5vw;
 }

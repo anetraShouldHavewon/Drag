@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class = "eepisode_header">
+<div class = "episode_header">
     <div class = "episode_info">
         <h1>{{episode_name}}</h1>
         <h2>Challenge Type: {{episode_challenge_type}}</h2>
@@ -11,11 +11,16 @@
 </div>
 
 <div class = "episode_queen_rankings">
+    <div class = "episode_queen_graph">Rank</div>
+    <div class = "episode_queen_graph">Drag Queen</div>
 {% for queen_list in queen_rankings %}
     {% if queen_rankings.index(queen_list) == 0 %}
     {% for queen in queen_list %}
-        <div class = "drag_queen_circle"></div>
-        <h2>{{queen}}</h2>
+        <div class = "episode_rank episode_queen_graph"><h3>Winner</h3></div>
+        <div class = "episode_drag_queen episode_queen_graph">
+            <div class = "drag_queen_circle episode_circle"></div>
+            <h3>{{queen}}</h3>
+        </div>
     {% endfor %}
     {% endif %}
 {% endfor %}
