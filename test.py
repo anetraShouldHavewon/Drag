@@ -50,9 +50,14 @@ for index in range(len(episode_queens)):
     if episode_placing_ids[index] == 6:
         bottom_2.append(episode_queens[index])
 
-print(safe_queens, immune, winner, top_2, eliminated, bottom_2)
+season_ids = fetchall_info_list('''SELECT id FROM Season WHERE
+                                    franchise_id = 1''', None, 0)
+season_names = fetchall_info_list('''SELECT name FROM Season WHERE
+                                    franchise_id = 1''', None, 0)
+season_queens_ids = fetchall_info_list('''SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?''', 1, 0)
 
 
+print(season_queens_ids)
 
 
 

@@ -35,22 +35,34 @@ def fetchall_info_list(fetch_query, query_condition, column_index):
 
 @app.route("/")
 def home():
-    season_description = sql(True, "SELECT description FROM Season WHERE name='Season 16'", None)[0]
+    season_description = sql(True, '''SELECT description FROM Season WHERE 
+                             id=1''', None)[0]
     drag_queen_names = []
     for id in range(1, 5):  # change later to have minimum and maximum or random or most prominant
-        drag_name = sql(True, "SELECT name FROM Drag_Queens WHERE id = ?", id)[0]
+        drag_name = sql(True, '''SELECT name FROM 
+                        Drag_Queens WHERE id = ?''', id)[0]
         drag_queen_names.append(drag_name)
-    return render_template("home.html", drag_names=drag_queen_names, season_description=season_description, title="Home")
+    return render_template("home.html", 
+                           drag_names=drag_queen_names, 
+                           season_description=season_description, 
+                           title="Home")
 
 
 @app.route("/seasons")
 def seasons():
-    season_ids = fetchall_info_list("SELECT id FROM Season WHERE franchise_id = 1", None, 0)
-    season_names = fetchall_info_list("SELECT name FROM Season WHERE franchise_id = 1", None, 0)
-    franchise_names = fetchall_info_list("SELECT name FROM Franchises", None, 0)
+    season_ids = fetchall_info_list('''SELECT id FROM Season WHERE
+                                    franchise_id = 1''', None, 0)
+    season_names = fetchall_info_list('''SELECT name FROM Season WHERE
+                                      franchise_id = 1''', None, 0)
+    franchise_names = fetchall_info_list("SELECT name FROM Franchises", 
+                                         None, 0)
     # INI change code to be more responsive with more seasons
 
-    return render_template("seasons.html", season_ids=season_ids, season_names=season_names, franchise_names=franchise_names, title="Seasons")
+    return render_template("seasons.html", 
+                           season_ids=season_ids, 
+                           season_names=season_names, 
+                           franchise_names=franchise_names, 
+                           title="Seasons")
 
 
 @app.route("/season_info/<int:id>")
@@ -61,46 +73,73 @@ def season_info(id):
     if id > max_season_id or id < min_season_id:
         abort(404)        
     season_name = sql(True, "SELECT name FROM Season WHERE id = ?", id)[0]
-    season_queens_ids = fetchall_info_list("SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 0)
-    season_queens_name = fetchall_info_list("SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 1)
+    season_queens_ids = fetchall_info_list('''SELECT Drag_Queen_Season.drag_queen_id FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?''', id, 0)
+    season_queens_name = fetchall_info_list("SELECT Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 0)
     season_episodes_ids = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 0)
     season_episodes_names = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 1)
     
-    return render_template("season_info.html", season_name=season_name, season_queens_ids=season_queens_ids, season_queens_name=season_queens_name, season_episodes_ids=season_episodes_ids, season_episodes_names=season_episodes_names, title="Season Information")
+    return render_template("season_info.html", 
+                           season_name=season_name, 
+                           season_queens_ids=season_queens_ids, 
+                           season_queens_name=season_queens_name, 
+                           season_episodes_ids=season_episodes_ids, 
+                           season_episodes_names=season_episodes_names, 
+                           title="Season Information")
 
 
 @app.route("/drag_queens")
 def drag_queens():
-    # INI --> get the most recent season name/id
-    # Leading users to the error 404 page when the id is larger or smaller than a certain amount
-    max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
-    min_season_id = sql(True, "SELECT MIN(id) FROM Drag_Queens", None)[0]
-    if id > max_season_id or id < min_season_id:
-        abort(404) 
-
+    # INI --> get the most recent season name/id    
     # Getting the names of the queens from the most recent season in a list
-    drag_queens_info = sql(False, "SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = 1", None)
+    drag_queens_info = sql(False, '''SELECT Drag_Queen_Season.drag_queen_id, 
+                           Drag_Queens.name FROM Drag_Queen_Season 
+                           JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = 
+                           Drag_Queens.id WHERE Drag_Queen_Season.season_id = 1''', 
+                           None)
     drag_queen_ids = []
     drag_queen_names = []
     for queen in range(len(drag_queens_info)):
         drag_queen_ids.append(drag_queens_info[queen][0])
         drag_queen_names.append(drag_queens_info[queen][1])
         
-    return render_template("drag_queens.html", drag_queen_ids=drag_queen_ids, drag_queen_names=drag_queen_names, title="Drag Queens")
+    return render_template("drag_queens.html", 
+                           drag_queen_ids=drag_queen_ids, 
+                           drag_queen_names=drag_queen_names, 
+                           title="Drag Queens")
 
 
 @app.route("/drag_queen_info/<int:id>")
 def drag_queen_info(id):
+    # Leading users to the error 404 page when the id is larger or smaller
+    # than a certain amount
+    max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
+    min_drag_queen_id = sql(True, "SELECT MIN(id) FROM Drag_Queens", None)[0]
+    if id > max_drag_queen_id or id < min_drag_queen_id:
+        abort(404)
+
+    # Getting the names, specialty skills, city of origin and age of 
+    # a particular drag queen
     drag_queen_info = sql(True, "SELECT * FROM Drag_Queens WHERE id = ?", id)
     name = drag_queen_info[1]
     specialty_skills = drag_queen_info[2]
     city = drag_queen_info[4]
     age = drag_queen_info[5]
-    return render_template("drag_queen_info.html", name=name, specialty_skills=specialty_skills, city=city, age=age, drag_queen=drag_queen_info, title="Drag Queen Information")
+
+    return render_template("drag_queen_info.html", 
+                           name=name, 
+                           specialty_skills=specialty_skills, 
+                           city=city, age=age, 
+                           drag_queen=drag_queen_info, 
+                           title="Drag Queen Information")
 
 
 @app.route("/episode_info/<int:id>")
-def episode_info(id):
+def episode_info(id): 
+    max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Episodes", None)[0]
+    min_drag_queen_id = sql(True, "SELECT MIN(id) FROM Episodes", None)[0]
+    if id > max_drag_queen_id or id < min_drag_queen_id:
+        abort(404)
+
     episode_info = sql(True, "SELECT name, challenge_description FROM Episodes WHERE id = ?", id)
     episode_name = episode_info[0]
     episode_challenge_description = episode_info[1]
@@ -130,7 +169,12 @@ def episode_info(id):
             bottom_2.append(episode_queens[index])
     queen_rankings = [winner, top_2, safe_queens, bottom_2, eliminated, immune] 
     
-    return render_template("episode_info.html", queen_rankings=queen_rankings, episode_name=episode_name, episode_challenge_description=episode_challenge_description, episode_challenge_type=episode_challenge_type, title="Episode Information")
+    return render_template("episode_info.html", 
+                           queen_rankings=queen_rankings, 
+                           episode_name=episode_name, 
+                           episode_challenge_description=episode_challenge_description, 
+                           episode_challenge_type=episode_challenge_type, 
+                           title="Episode Information")
 
 @app.errorhandler(404)
 def error(e):

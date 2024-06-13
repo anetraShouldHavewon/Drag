@@ -65,6 +65,14 @@ ul li{
     margin-right: 20vw;
 }
 
+.home_button{
+    background-color: #e4ccff;
+    text-align: center;
+    border-radius: 20%;
+    width: 20vw;
+    height: 5vw;
+}
+
 
 /*Individual Drag Queen Page*/
 .drag_queen_container{
@@ -77,6 +85,7 @@ ul li{
     background-color: #e4ccff;
     margin-left: 30vw;
     text-align: center;
+    border-radius: 10%;
 }
 
 /*Drag Queen Intro Page*/
@@ -223,8 +232,11 @@ ul li{
 .episode_drag_queen{
     display: flex;
     padding-left: 1vw;
+    align-items: center;
+    gap: 1vw;
 }
+
 .episode_circle{
-    height: 5vw;
-    width: 5vw;
+    height: 3vw;
+    width: 3vw;
 }
