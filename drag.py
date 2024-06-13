@@ -1,5 +1,5 @@
 '''My Project'''
-from flask import Flask, render_template
+from flask import Flask, render_template, abort
 import sqlite3
 
 app = Flask(__name__)
@@ -32,14 +32,16 @@ def fetchall_info_list(fetch_query, query_condition, column_index):
         return_list.append(item[column_index])
     return return_list
 
+
 @app.route("/")
 def home():
-    season_description = sql(True, "SELECT description FROM Season WHERE name = 'Season 16'", None)[0]
+    season_description = sql(True, "SELECT description FROM Season WHERE name='Season 16'", None)[0]
     drag_queen_names = []
-    for id in range(1, 5): # change later to have minimum and maximum or random or most prominant
+    for id in range(1, 5):  # change later to have minimum and maximum or random or most prominant
         drag_name = sql(True, "SELECT name FROM Drag_Queens WHERE id = ?", id)[0]
         drag_queen_names.append(drag_name)
     return render_template("home.html", drag_names=drag_queen_names, season_description=season_description, title="Home")
+
 
 @app.route("/seasons")
 def seasons():
@@ -50,8 +52,14 @@ def seasons():
 
     return render_template("seasons.html", season_ids=season_ids, season_names=season_names, franchise_names=franchise_names, title="Seasons")
 
+
 @app.route("/season_info/<int:id>")
 def season_info(id):
+    # Leading users to the error 404 page when the id is larger or smaller than a certain amount
+    max_season_id = sql(True, "SELECT MAX(id) FROM Season", None)[0]
+    min_season_id = sql(True, "SELECT MIN(id) FROM Season", None)[0]
+    if id > max_season_id or id < min_season_id:
+        abort(404)        
     season_name = sql(True, "SELECT name FROM Season WHERE id = ?", id)[0]
     season_queens_ids = fetchall_info_list("SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 0)
     season_queens_name = fetchall_info_list("SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 1)
@@ -60,9 +68,16 @@ def season_info(id):
     
     return render_template("season_info.html", season_name=season_name, season_queens_ids=season_queens_ids, season_queens_name=season_queens_name, season_episodes_ids=season_episodes_ids, season_episodes_names=season_episodes_names, title="Season Information")
 
+
 @app.route("/drag_queens")
 def drag_queens():
     # INI --> get the most recent season name/id
+    # Leading users to the error 404 page when the id is larger or smaller than a certain amount
+    max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
+    min_season_id = sql(True, "SELECT MIN(id) FROM Drag_Queens", None)[0]
+    if id > max_season_id or id < min_season_id:
+        abort(404) 
+
     # Getting the names of the queens from the most recent season in a list
     drag_queens_info = sql(False, "SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = 1", None)
     drag_queen_ids = []
@@ -73,6 +88,7 @@ def drag_queens():
         
     return render_template("drag_queens.html", drag_queen_ids=drag_queen_ids, drag_queen_names=drag_queen_names, title="Drag Queens")
 
+
 @app.route("/drag_queen_info/<int:id>")
 def drag_queen_info(id):
     drag_queen_info = sql(True, "SELECT * FROM Drag_Queens WHERE id = ?", id)
@@ -81,6 +97,7 @@ def drag_queen_info(id):
     city = drag_queen_info[4]
     age = drag_queen_info[5]
     return render_template("drag_queen_info.html", name=name, specialty_skills=specialty_skills, city=city, age=age, drag_queen=drag_queen_info, title="Drag Queen Information")
+
 
 @app.route("/episode_info/<int:id>")
 def episode_info(id):
@@ -115,5 +132,8 @@ def episode_info(id):
     
     return render_template("episode_info.html", queen_rankings=queen_rankings, episode_name=episode_name, episode_challenge_description=episode_challenge_description, episode_challenge_type=episode_challenge_type, title="Episode Information")
 
+@app.errorhandler(404)
+def error(e):
+    return render_template("404.html")
 if __name__ == "__main__":
     app.run(debug=True)
