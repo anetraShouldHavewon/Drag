@@ -79,11 +79,11 @@ def season_info(id):
     season_episodes_names = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 1)
     
     return render_template("season_info.html", 
-                           season_name=season_name, 
-                           season_queens_ids=season_queens_ids, 
-                           season_queens_name=season_queens_name, 
-                           season_episodes_ids=season_episodes_ids, 
-                           season_episodes_names=season_episodes_names, 
+                           season_name=season_name,
+                           season_queens_ids=season_queens_ids,
+                           season_queens_name=season_queens_name,
+                           season_episodes_ids=season_episodes_ids,
+                           season_episodes_names=season_episodes_names,
                            title="Season Information")
 
 
@@ -91,10 +91,10 @@ def season_info(id):
 def drag_queens():
     # INI --> get the most recent season name/id    
     # Getting the names of the queens from the most recent season in a list
-    drag_queens_info = sql(False, '''SELECT Drag_Queen_Season.drag_queen_id, 
-                           Drag_Queens.name FROM Drag_Queen_Season 
-                           JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = 
-                           Drag_Queens.id WHERE Drag_Queen_Season.season_id = 1''', 
+    drag_queens_info = sql(False, '''SELECT Drag_Queen_Season.drag_queen_id,
+                           Drag_Queens.name FROM Drag_Queen_Season
+                           JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id =
+                           Drag_Queens.id WHERE Drag_Queen_Season.season_id = 1''',
                            None)
     drag_queen_ids = []
     drag_queen_names = []
