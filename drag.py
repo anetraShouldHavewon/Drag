@@ -13,12 +13,12 @@ def sql(fetchone, query, constraint):
     if constraint is None:
         if fetchone is True:
             result = cursor.execute(query).fetchone()
-        if fetchone is False: # if the query needs a fetchall
+        if fetchone is False:  # if the query needs a fetchall
             result = cursor.execute(query).fetchall()
     else:
         if fetchone is True:
             result = cursor.execute(query, (constraint,)).fetchone()
-        if fetchone is False: # if the query needs a fetchall
+        if fetchone is False:  # if the query needs a fetchall
             result = cursor.execute(query, (constraint,)).fetchall()
 
     return result
