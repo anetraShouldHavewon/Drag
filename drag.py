@@ -1,8 +1,9 @@
 '''My Project'''
 from flask import Flask, render_template, abort
-import sqlite3
+import sqlite3, random
 
 app = Flask(__name__)
+
 
 def sql(fetchone, query, constraint):
     '''Executes sql queries based on whether they can be executed with a '''
@@ -32,19 +33,35 @@ def fetchall_info_list(fetch_query, query_condition, column_index):
         return_list.append(item[column_index])
     return return_list
 
+# Getting the maximum ids from the drag_queens table
+max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
 
 @app.route("/")
 def home():
-    season_description = sql(True, '''SELECT description FROM Season WHERE 
-                             id=1''', None)[0]
+    franchise_ids = fetchall_info_list("SELECT id FROM Franchises", None, 0)
+    franchise_seasons = []
+    for id in franchise_ids:
+        franchise_season_id = sql(True,'''SELECT id, MAX(release_year) 
+                               FROM Seasons WHERE franchise_id = ?''',id)[0]
+        franchise_seasons.append(franchise_season_id)
+        
     drag_queen_names = []
-    for id in range(1, 5):  # change later to have minimum and maximum or random or most prominant
+    drag_queen_ids = []
+    for id in range(4):
+        while True:
+            random_id = random.randint(1, max_drag_queen_id)
+            if random_id not in drag_queen_ids:
+                break
         drag_name = sql(True, '''SELECT name FROM 
-                        Drag_Queens WHERE id = ?''', id)[0]
+                        Drag_Queens WHERE id = ?''', random_id)[0]
         drag_queen_names.append(drag_name)
+        drag_queen_ids.append(random_id)
+
+
     return render_template("home.html", 
-                           drag_names=drag_queen_names, 
-                           season_description=season_description, 
+                           drag_names=drag_queen_names,
+                           drag_queen_ids = drag_queen_ids,
+                           franchise_seasons = franchise_seasons,
                            title="Home")
 
 
@@ -111,10 +128,8 @@ def drag_queens():
 @app.route("/drag_queen_info/<int:id>")
 def drag_queen_info(id):
     # Leading users to the error 404 page when the id is larger or smaller
-    # than a certain amount
-    max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
-    min_drag_queen_id = sql(True, "SELECT MIN(id) FROM Drag_Queens", None)[0]
-    if id > max_drag_queen_id or id < min_drag_queen_id:
+    # than a certain range of acceptable ids
+    if id > max_drag_queen_id or id < 1:
         abort(404)
 
     # Getting the names, specialty skills, city of origin and age of 
@@ -125,11 +140,11 @@ def drag_queen_info(id):
     city = drag_queen_info[4]
     age = drag_queen_info[5]
 
-    return render_template("drag_queen_info.html", 
-                           name=name, 
-                           specialty_skills=specialty_skills, 
-                           city=city, age=age, 
-                           drag_queen=drag_queen_info, 
+    return render_template("drag_queen_info.html",
+                           name=name,
+                           specialty_skills=specialty_skills,
+                           city=city, age=age,
+                           drag_queen=drag_queen_info,
                            title="Drag Queen Information")
 
 

@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, random
 
 def sql(fetchone, query, constraint):
     '''Executes sql queries based on whether they can be executed with a fetchone or fetchall'''
@@ -26,38 +26,21 @@ def fetchall_info_list(fetch_query, query_condition, column_index):
         return_list.append(item[column_index])
     return return_list
 
-episode_queens = fetchall_info_list("SELECT Drag_Queens.name, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", 1, 0)
-episode_placings = fetchall_info_list("SELECT Drag_Queens.name, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", 1, 1)
-episode_placing_ids = fetchall_info_list("SELECT Drag_Queen_Episodes.placing_id FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = 1", None, 0)
-safe_queens = []
-immune = []
-winner = []
-top_2 = []
-eliminated = []
-bottom_2 = []
 
-for index in range(len(episode_queens)):
-    if episode_placing_ids[index] == 4:
-        safe_queens.append(episode_queens[index])
-    if episode_placing_ids[index] == 1:
-        immune.append(episode_queens[index])
-    if episode_placing_ids[index] == 8:
-        winner.append(episode_queens[index])
-    if episode_placing_ids[index] == 7:
-        top_2.append(episode_queens[index])
-    if episode_placing_ids[index] == 2:
-        eliminated.append(episode_queens[index])
-    if episode_placing_ids[index] == 6:
-        bottom_2.append(episode_queens[index])
+max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
+drag_queen_names = []
+drag_queen_ids = []
+for id in range(4):
+    while True:
+        random_id = random.randint(1, max_drag_queen_id)
+        if random_id not in drag_queen_ids:
+            break
+    drag_name = sql(True, '''SELECT name FROM 
+                    Drag_Queens WHERE id = ?''', random_id)[0]
+    drag_queen_names.append(drag_name)
+    drag_queen_ids.append(random_id)
 
-season_ids = fetchall_info_list('''SELECT id FROM Season WHERE
-                                    franchise_id = 1''', None, 0)
-season_names = fetchall_info_list('''SELECT name FROM Season WHERE
-                                    franchise_id = 1''', None, 0)
-season_queens_ids = fetchall_info_list('''SELECT Drag_Queen_Season.drag_queen_id, Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?''', 1, 0)
-
-
-print(season_queens_ids)
+print(drag_queen_names, drag_queen_ids)
 
 
 
