@@ -39,14 +39,14 @@ max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
 @app.route("/")
 def home():
     franchise_ids = fetchall_info_list("SELECT id FROM Franchises", None, 0)
-    franchise_seasons = []
+    franchise_season_ids = []
     for id in franchise_ids:
         franchise_season_id = sql(True,'''SELECT id, MAX(release_year) 
                                FROM Seasons WHERE franchise_id = ?''',id)[0]
-        franchise_seasons.append(franchise_season_id)
+        franchise_season_ids.append(franchise_season_id)
         
-    drag_queen_names = []
-    drag_queen_ids = []
+    drag_queen_names = ["Angeria Paris VanMicheals"]
+    drag_queen_ids = [15]
     for id in range(4):
         while True:
             random_id = random.randint(1, max_drag_queen_id)
@@ -58,27 +58,27 @@ def home():
         drag_queen_ids.append(random_id)
 
 
-    return render_template("home.html", 
+    return render_template("home.html",
                            drag_names=drag_queen_names,
                            drag_queen_ids = drag_queen_ids,
-                           franchise_seasons = franchise_seasons,
+                           franchise_season_ids = franchise_season_ids,
                            title="Home")
 
 
 @app.route("/seasons")
 def seasons():
-    season_ids = fetchall_info_list('''SELECT id FROM Season WHERE
+    season_ids = fetchall_info_list('''SELECT id FROM Seasons WHERE 
                                     franchise_id = 1''', None, 0)
-    season_names = fetchall_info_list('''SELECT name FROM Season WHERE
+    season_names = fetchall_info_list('''SELECT name FROM Seasons WHERE
                                       franchise_id = 1''', None, 0)
-    franchise_names = fetchall_info_list("SELECT name FROM Franchises", 
+    franchise_names = fetchall_info_list("SELECT name FROM Franchises",
                                          None, 0)
     # INI change code to be more responsive with more seasons
 
-    return render_template("seasons.html", 
-                           season_ids=season_ids, 
-                           season_names=season_names, 
-                           franchise_names=franchise_names, 
+    return render_template("seasons.html",
+                           season_ids=season_ids,
+                           season_names=season_names,
+                           franchise_names=franchise_names,
                            title="Seasons")
 
 

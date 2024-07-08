@@ -8,18 +8,33 @@
     <div class = "home_hero_rupaul"></div>
 </div>
 
-
-
-
-<h1>Meet the Queens</h1>
-<div class = "home_grid">
-    {% for i in range(0, drag_names|length) %}
-    <a href = "/drag_queen_info/{{i+1}}">
-    <div class = "home_drag_queen">
-        <div class = "drag_queen_circle"><p>img</p></div>
-        <div class = "home_drag_queen_name">{{drag_names[i]}}</div>
+<div class = "home_franchise">
+    <h2>BINGE ALL THE FRANCHISES</h2>
+    <hr>
+    <div class = "home_franchises_lineup">
+        {% for id in franchise_season_ids %}
+            <div class = "home_franchise_poster">
+                <img src = "/static/photos/seasons/{{id}}.webp">
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
+
+<div class = "home_franchise">
+    <h2>MEET SOME QUEENS</h2>
+    <hr>
+    <div class = "home_franchises_lineup">
+        {% for i in range(0, drag_names|length) %}
+        <a href = "/drag_queen_info/{{drag_queen_ids[i]}}">
+        <div class = "home_drag_queen">
+            <div class = "drag_queen_circle">
+                <img class = "drag_queen_circle" src = "/static/photos/drag_queen_circle/{{drag_queen_ids[i]}}.webp">
+            </div>
+            <div class = "home_drag_queen_name">
+                <h3>{{drag_names[i]}}</h3>
+            </div>  
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
