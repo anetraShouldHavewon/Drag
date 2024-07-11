@@ -12,15 +12,18 @@
     <h2>BINGE ALL THE FRANCHISES</h2>
     <hr>
     <div class = "home_franchises_lineup">
-        {% for id in franchise_season_ids %}
+        {% for index in range(franchise_season_ids|length) %}
+        <a href = "/seasons#franchise_id{{franchise_ids[index]}}">
             <div class = "home_franchise_poster">
-                <img src = "/static/photos/seasons/{{id}}.webp">
+                <img src = "/static/photos/seasons/{{franchise_season_ids[index]}}.webp">
+                <h3>{{franchise_names[index]}}</h3>
             </div>
+        </a>
         {% endfor %}
     </div>
 </div>
 
-<div class = "home_franchise">
+<div class = "home_franchise home_queens">
     <h2>MEET SOME QUEENS</h2>
     <hr>
     <div class = "home_franchises_lineup">
@@ -34,6 +37,7 @@
                 <h3>{{drag_names[i]}}</h3>
             </div>  
         </div>
+        </a>
         {% endfor %}
     </div>
 </div>

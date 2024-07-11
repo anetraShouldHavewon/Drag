@@ -1,28 +1,34 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Latest</h2>
-<div class = "franchise">
-    {% for index in range(season_names|length) %} <!--change to latest-->
-    <a href = "/season_info/{{season_ids[index]}}">
-        <div class = "season_poster">
-            <h3>{{season_names[index]}}</h3>
-        </div>
-    </a>
-    {% endfor %} 
+<div class = "home_franchise">
+    <h2>Latest</h2>
+    <div class = "home_franchises_lineup">
+        {% for index in range(latest_season_names|length) %} <!--change to latest-->
+        <a href = "/season_info/{{latest_season_ids[index]}}">
+            <div class = "home_franchise_poster">
+                <img src = "/static/photos/seasons/{{latest_season_ids[index]}}.webp">
+                <h3>{{latest_season_names[index]}}</h3>
+            </div>
+        </a>
+        {% endfor %} 
+    </div>
 </div>
 
-{% for franchise in franchise_names %}
-    <h2>{{franchise}}</h2> 
-    <div class = "franchise">
-        {% if franchise == "Rupaul's Drag Race" %}
-            {% for index in range(season_names|length) %} <!--change to latest-->
-            <a href = "/season_info/{{season_ids[index]}}">
-                <div class = "season_poster">
-                    <h3>{{season_names[index]}}</h3>
-                </div>
-            </a>
-            {% endfor %} 
-        {% endif %}
+{% for index in range(franchise_names|length) %}
+<div class = "home_franchise" id = "franchise_id{{franchise_ids[index]}}">
+    {% set season_ids = franchise_dict[franchise_names[index]][0] %}
+    {% set season_names = franchise_dict[franchise_names[index]][1] %}
+    <h2>{{franchise_names[index]}}</h2> 
+    <div class = "home_franchises_lineup">
+        {% for index in range(season_names|length) %} <!--change to latest-->
+        <a href = "/season_info/{{season_ids[index]}}">
+            <div class = "home_franchise_poster">
+                <img src = "/static/photos/seasons/{{season_ids[index]}}.webp">
+                <h3>{{season_names[index]}}</h3>
+            </div>
+        </a>
+        {% endfor %} 
     </div>
+</div>
 {% endfor %}
 {% endblock %}

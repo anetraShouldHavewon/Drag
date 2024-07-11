@@ -3,10 +3,16 @@
 {% block content %}
 <div class = "drag_queen_container">
     <div class = "drag_queen_info">
-        <h2>{{name}}</h2>
+        <mark class = "drag_queen_quote"><h2>{{iconic_quote}}</h2></mark>
         <h3>City: {{city}}</h3>
         <h3>Age: {{age}}</h3>
         <h3>Specialty Skills: {{specialty_skills}}</h3>
+        <p>{{description}}</p>
     </div>
-    <div class = "drag_queen_image"><p>drag_queen_img</p></div>
+    <div class = "drag_queen_image_container">
+        <div class = "drag_queen_image">
+            <img class = "drag_queen_image" src = "/static/photos/drag_queen_profile/{{id}}.webp">
+            <h2>{{name}}</h2>
+        </div>
+    </div>
 {% endblock %}
