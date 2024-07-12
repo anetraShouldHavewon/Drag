@@ -16,7 +16,7 @@ def sql(fetchone, query, constraint):
             result = cursor.execute(query).fetchone()
         if fetchone is False:  # if the query needs a fetchall
             result = cursor.execute(query).fetchall()
-    if type(constraint) is list:
+    elif type(constraint) is list:
         if fetchone is True:
             result = cursor.execute(query, (constraint)).fetchone()
         if fetchone is False: # if the query needs a fetchall
@@ -118,10 +118,18 @@ def season_info(id):
     if id > max_season_id or id < 1:
         abort(404)        
     season_name = sql(True, "SELECT name FROM Seasons WHERE id = ?", id)[0].upper()
-    season_queens_ids = fetchall_info_list('''SELECT Drag_Queen_Season.drag_queen_id FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?''', id, 0)
-    season_queens_name = fetchall_info_list("SELECT Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?", id, 0)
+    season_queens_ids = fetchall_info_list('''SELECT 
+                                           Drag_Queen_Season.drag_queen_id 
+                                           FROM Drag_Queen_Season JOIN 
+                                           Drag_Queens ON 
+                                           Drag_Queen_Season.drag_queen_id = 
+                                           Drag_Queens.id WHERE 
+                                           Drag_Queen_Season.season_id = ?''', 
+                                           id, 0)
+    season_queens_name = fetchall_info_list('''SELECT Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?''', id, 0)
     season_episodes_ids = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 0)
     season_episodes_names = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 1)
+    season_episodes_imgs = fetchall_info_list("SELECT img_link FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 0)
     
     return render_template("season_info.html", 
                            season_id=id,
@@ -130,6 +138,7 @@ def season_info(id):
                            season_queens_name=season_queens_name,
                            season_episodes_ids=season_episodes_ids,
                            season_episodes_names=season_episodes_names,
+                           season_episodes_imgs=season_episodes_imgs,
                            title="Season Information")
 
 
@@ -171,6 +180,8 @@ def drag_queens(id):
         # Getting the id of one the most recent seasons
         recent_season_id = sql(True, '''SELECT id, MAX(release_year) FROM 
                                Seasons''', None)[0]
+        recent_season_name = sql(True, '''SELECT name, MAX(release_year) FROM 
+                               Seasons''', None)[0]
                             
         # Getting the names and ids of the queens from the 
         # most recent season in a list
@@ -185,54 +196,67 @@ def drag_queens(id):
                              WHERE id = ?''', queen_id)[0]
             famous_queen_names.append(queen_name)
 
-    # The next section codes for a page that allows users to 
-    # filter drag queens by seasons 
-    if id == 1:
-        # Getting the names and ids of all the seasons
-        # in the Drag Race franchise 
-        season_ids = fetchall_info_list("SELECT id FROM Seasons", None, 0)
-        season_names = fetchall_info_list("SELECT name FROM Seasons", None, 0)
-        season_drag_queens = {}
-
-        # Getting the names and ids of the queens of each season 
-        # within the Drag Race franchise
-        for index, season_id in enumerate(season_ids):
-            drag_queen_ids = drag_queen_filter(season_id, 1)[0]
-            drag_queen_names = drag_queen_filter(season_id, 1)[1] 
-            season_drag_queens[season_names[index]] = [drag_queen_ids, 
-                                                       drag_queen_names]
-            
-    # The next section codes for a page where drag queens are 
-    # filtered by cities
-    if id == 2:
-        # Getting all the unique cities of origin of the drag queens
-        cities = fetchall_info_list('''SELECT DISTINCT city 
-                                    FROM Drag_Queens''', None, 0)
-        city_drag_queens = {}
-
-        # Getting the names and ids of drag queens for each 
-        # unique city
-        for city in cities:
-            drag_queen_ids = drag_queen_filter(city, 2)[0]
-            drag_queen_names = drag_queen_filter(city, 2)[1]
-            city_drag_queens[city] = [drag_queen_ids, drag_queen_names]
-
-    if id == 3:
-        age_ranges = [[20, 30], [30, 40], [40, 50]]
-        age_range_drag_queens = []
-        for index, age_range in enumerate(age_ranges):
-            drag_queen_ids = drag_queen_filter(age_range, 3)[0]
-            drag_queen_names = drag_queen_filter(age_range, 3)[1]
-            age_range_drag_queens.append([drag_queen_ids, drag_queen_names])
-
-
-    return render_template("drag_queens.html", 
-                           page=id,
-                           drag_queen_ids=drag_queen_ids, 
-                           drag_queen_names=drag_queen_names,
+        return render_template("drag_queens.html", 
+                           page_id=id,
+                           season_name=recent_season_name,
+                           drag_queen_ids=recentdrag_queen_ids, 
+                           drag_queen_names=recentdrag_queen_names,
                            famous_queen_ids=famous_queen_ids,
                            famous_queen_names=famous_queen_names,
                            title="Drag Queens")
+
+    else:
+        # The next section codes for a page that allows users to 
+        # filter drag queens by seasons 
+        if id == 1:
+            # Getting the names and ids of all the seasons
+            # in the Drag Race franchise 
+            season_ids = fetchall_info_list("SELECT id FROM Seasons", None, 0)
+            headings = fetchall_info_list("SELECT name FROM Seasons", None, 0)
+            drag_queens = {}
+
+            # Getting the names and ids of the queens of each season 
+            # within the Drag Race franchise
+            for index, season_id in enumerate(season_ids):
+                drag_queen_ids = drag_queen_filter(season_id, 1)[0]
+                drag_queen_names = drag_queen_filter(season_id, 1)[1] 
+                drag_queens[headings[index]] = [drag_queen_ids,
+                                                drag_queen_names]
+                
+        # The next section codes for a page where drag queens are 
+        # filtered by cities
+        if id == 2:
+            # Getting all the unique cities of origin of the drag queens
+            headings = fetchall_info_list('''SELECT DISTINCT city 
+                                        FROM Drag_Queens''', None, 0)
+            drag_queens = {}
+
+            # Getting the names and ids of drag queens for each 
+            # unique city
+            for city in headings:
+                drag_queen_ids = drag_queen_filter(city, 2)[0]
+                drag_queen_names = drag_queen_filter(city, 2)[1]
+                drag_queens[city] = [drag_queen_ids, drag_queen_names]
+
+        # The next section codes for a page where drag queens are 
+        # filtered by age range
+        if id == 3:
+            age_ranges = [[20, 29], [30, 39], [40, 49]]
+            headings = ["Younger Queens(20~30)", "Established Queens(30~40)",
+                        "Wow She Stuck Around for Long(40~50)"]
+            drag_queens = {}
+            for index, age_range in enumerate(age_ranges):
+                drag_queen_ids = drag_queen_filter(age_range, 3)[0]
+                drag_queen_names = drag_queen_filter(age_range, 3)[1]
+                drag_queens[headings[index]] = [drag_queen_ids, drag_queen_names]
+
+        return render_template("drag_queens.html", 
+                           page_id=id,
+                           headings=headings,
+                           drag_queens=drag_queens,
+                           title="Drag Queens")
+
+
 
 
 @app.route("/drag_queen_info/<int:id>")

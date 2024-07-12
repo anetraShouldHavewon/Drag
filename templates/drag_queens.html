@@ -1,25 +1,82 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Meet the Queens of Season 16</h2>
-<div class = "drag_queens_carousel">
-    {% for i in range(0, drag_queen_names|length) %}
-    <a href = "/drag_queen_info/{{drag_queen_ids[i]}}">
-    <div class = "drag_queens">
-        <div class = "drag_queen_circle">drag queen img</div>
-        <h3>{{drag_queen_names[i]}}</h3>
+<div class = "drag_queens_filter">
+    <h2>Filter by:</h2>
+    <div class = "drag_queens_filter_buttons">
+        <a href = "/drag_queens/1">
+            <button class = "filter_btn"><h2>Seasons</h2></button>
+        </a>
+        <a href = "/drag_queens/2">
+            <button class = "filter_btn"><h2>City</h2></button>
+        </a>
+        <a href = "/drag_queens/3">
+            <button class = "filter_btn"><h2>Age</h2></button>
+        </a>
     </div>
-    </a>
-    {% endfor %}
 </div>
 
-<h2>Reputable Ilumni</h2>
-<div class = "drag_queens_reputable_grid">
-    {% for i in range(1,5) %}
-        <div class = "one_drag_queens_reputable">
-            <div class = "drag_queens_reputable_square"></div>
-            <h3>Drag Queen Name</h3>
-            <h4>Description</h4>
+{% if page_id == 0 %}
+    <div class = "home_franchise home_queens">
+        <h2>Meet the Queens of {{season_name}}</h2>
+        <!--<div class = "drag_queens_carousel">-->
+        <div class = "home_franchises_lineup">
+            {% for i in range(0, drag_queen_names|length) %}
+            <a href = "/drag_queen_info/{{drag_queen_ids[i]}}">
+            <div class = "home_drag_queen">
+                <div class = "drag_queen_circle">
+                    <img class = "drag_queen_circle" src = "/static/photos/drag_queen_circle/{{drag_queen_ids[i]}}.webp">
+                </div>
+                <div class = "home_drag_queen_name">
+                    <h3>{{drag_queen_names[i]}}</h3>
+                </div>
+            </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class = "home_franchise home_queens">
+        <h2>Some famous alumni</h2>
+        <!--<div class = "drag_queens_carousel">-->
+        <div class = "home_franchises_lineup">
+            {% for i in range(0, famous_queen_ids|length) %}
+            <a href = "/drag_queen_info/{{famous_queen_ids[i]}}">
+            <div class = "home_drag_queen">
+                <div class = "drag_queen_circle">
+                    <img class = "drag_queen_circle" src = "/static/photos/drag_queen_circle/{{famous_queen_ids[i]}}.webp">
+                </div>
+                <div class = "home_drag_queen_name">
+                    <h3>{{drag_queen_names[i]}}</h3>
+                </div>
+            </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+{% else %}
+    {% for heading in headings %}
+        <div class = "home_franchise home_queens">
+            <h2>{{heading}}</h2>
+            <!--<div class = "drag_queens_carousel">-->
+            <div class = "home_franchises_lineup">
+                {% set drag_queen_ids = drag_queens[heading][0] %}
+                {% set drag_queen_names = drag_queens[heading][1] %}
+                {% for i in range(0, drag_queen_ids|length) %}
+                <a href = "/drag_queen_info/{{drag_queen_ids[i]}}">
+                <div class = "home_drag_queen">
+                    <div class = "drag_queen_circle">
+                        <img class = "drag_queen_circle" src = "/static/photos/drag_queen_circle/{{drag_queen_ids[i]}}.webp">
+                    </div>
+                    <div class = "home_drag_queen_name">
+                        <h3>{{drag_queen_names[i]}}</h3>
+                    </div>
+                </div>
+                </a>
+                {% endfor %}
+            </div>
         </div>
     {% endfor %}
-</div>
+
+{% endif %}
 {% endblock %}

@@ -1,18 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class = "season_info_hero_image">
-    <h1>{{season_name}}</h1>
-    <img class = "season_info_hero_image" src = "/static/photos/seasons/2.webp">
+<div class = "season_info_hero_image_container">
+    <img class = "season_info_hero_image" src = "/static/photos/season_info_pages/{{season_id}}.webp">
 </div>
 <!--{{season_id}}-->
-<div class = "season_cast">
-    <h2>Queens of the Season</h2>
-    <div class = "season_queens">
+<div class = "home_franchise home_queens">
+    <h2>QUEENS OF {{season_name}}</h2>
+    <div class = "home_franchises_lineup">
         {% for index in range(0, season_queens_ids|length) %}
         <a href = "/drag_queen_info/{{season_queens_ids[index]}}">
-            <div class = "season_queen">
-                <div class = "drag_queen_circle season_queen_circle"><p>drag queen img</p></div>
-                <div class = "season_queen_name">{{season_queens_name[index]}}</div>
+            <div class = "home_drag_queen">
+                <div class = "drag_queen_circle">
+                    <img class = "drag_queen_circle" src = "/static/photos/drag_queen_circle/{{season_queens_ids[index]}}.webp">
+                </div>
+                <div class = "home_drag_queen_name">
+                    <h3>{{season_queens_name[index]}}</h3>
+                </div>
             </div>
         </a>
         {% endfor %}
@@ -21,12 +24,13 @@
 </div>
 
 <div class = "episode_section">
-    <h2>Rerank the Queens in Each Episode</h2>
+    <h2>Episodes</h2>
     <div class = "episodes">
         {% for index in range(0, season_episodes_ids|length) %}
         <a href = "/episode_info/{{season_episodes_ids[index]}}">
-            <div class = "episode">
-                <h3>{{season_episodes_names[index]}}</h3>   
+            <div class = "episode_container">
+                <img class = "episode" src = "/static/photos/episodes/{{season_episodes_imgs[index]}}">
+                <h3 class = "episode_name">{{season_episodes_names[index]}}</h3>
             </div>
         </a>
         {% endfor %}
