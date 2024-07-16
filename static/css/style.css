@@ -349,6 +349,21 @@ mark{
     object-fit: cover;
     border: none;
     transition: border 1s;
+    position: relative;
+}
+
+.episode_filter{
+    background-color: none;
+    backdrop-filter: none;
+    width: 400px;
+    height: 224.8px;
+    position: absolute;
+    transition: background-color 0.7s, backdrop-filter 0.7s;
+}
+
+.episode_container:hover .episode_filter{
+    background-color: rgba(10, 10, 10, 0.383);
+    backdrop-filter: blur(2px);
 }
 
 .episode_container:hover .episode{
@@ -358,17 +373,31 @@ mark{
 /*Episode Information*/
 .episode_header{
     display: grid;
-    grid-template-columns: 60% 30%;
+    grid-template-columns: 600px 700px;
     clear: both;
-    height: 60vh;
-    padding-bottom: 10vh;
+    height: fit-content;
+    padding: 50px;
+}
+
+.episode_info{
+    padding-right: 30px;
+}
+
+.episode_img_container{
+    display: flex;
+    justify-content: end;
+
 }
 
 .episode_img{
     background-color: #e4ccff;
-    height: 70%;
-    margin-left: 10%;
-    margin-top: 10%;
+    width: 500px;
+    height: 300px;
+    object-fit: cover;
+}
+
+.episode_queen_rankings_container{
+    padding: 50px;
 }
 
 .episode_queen_rankings{
@@ -377,11 +406,15 @@ mark{
 }
 
 .episode_queen_graph{
-    border: solid 4px lavender;
+    border: solid 1px lavender;
+    background-color: #e4ccff87;
+    height: 70px;
 }
 
 .episode_rank{
-    text-align: center;
+    display: flex;
+    justify-content: start;
+    padding-left: 30px;
 }
 
 .episode_drag_queen{
@@ -392,6 +425,6 @@ mark{
 }
 
 .episode_circle{
-    height: 3vw;
-    width: 3vw;
+    height: 50px;
+    width: 50px;
 }

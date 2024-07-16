@@ -2,44 +2,56 @@
 {% block content %}
 <div class = "episode_header">
     <div class = "episode_info">
-        <h1>{{episode_name}}</h1>
-        <h2>Challenge Type: {{episode_challenge_type}}</h2>
+        <h2>{{episode_name}}</h2>
+        <h3>Challenge Type: {{episode_challenge_type}}</h3>
+        <h3>Runway Theme: {{episode_runway_theme}}</h3>
         <p>{{episod_challenge_description}}</p>
     </div>
-    <div class = "episode_img">
+    <div class = "episode_img_container">
+        <img class="episode_img" src="/static/photos/episodes/{{episode_img}}">
     </div>
 </div>
 
-<div class = "episode_queen_rankings">
-    <div class = "episode_queen_graph">Rank</div>
-    <div class = "episode_queen_graph">Drag Queen</div>
-{% for queen_list in queen_rankings %}
-    {% if queen_rankings.index(queen_list) == 0 %}
-        {% set column_name = "Winner" %}
-    {% endif %}
-    {% if queen_rankings.index(queen_list) == 1 %}
-        {% set column_name = "Top 2" %}
-    {% endif %}
-    {% if queen_rankings.index(queen_list) == 2 %}
-        {% set column_name = "Safe" %}
-    {% endif %}
-    {% if queen_rankings.index(queen_list) == 3 %}
-        {% set column_name = "Bottom 2" %}
-    {% endif %}
-    {% if queen_rankings.index(queen_list) == 4 %}
-        {% set column_name = "Eliminated" %}
-    {% endif %}
-    {% if queen_rankings.index(queen_list) == 5 %}
-        {% set column_name = "Immune" %}
-    {% endif %}
-    {% for queen in queen_list %}
-        <div class = "episode_rank episode_queen_graph"><h3>{{column_name}}</h3></div>
-        <div class = "episode_drag_queen episode_queen_graph">
-            <div class = "drag_queen_circle episode_circle"></div>
-            <h3>{{queen}}</h3>
+<div class = "episode_queen_rankings_container">
+    <h2>RANKINGS</h2>
+    <div class = "episode_queen_rankings">
+        <div class = "episode_queen_graph episode_rank">
+            <h3>Rank</h3>
         </div>
-    {% endfor %}
-    
-{% endfor %}
+        <div class = "episode_queen_graph episode_drag_queen">
+            <h3>Drag Queen</h3>
+        </div>
+        {% for queen_dict in queen_rankings %}
+            {% if queen_rankings.index(queen_dict) == 0 %}
+                {% set column_name = "Winner" %}
+            {% endif %}
+            {% if queen_rankings.index(queen_dict) == 1 %}
+                {% set column_name = "Top 2" %}
+            {% endif %}
+            {% if queen_rankings.index(queen_dict) == 2 %}
+                {% set column_name = "Safe" %}
+            {% endif %}
+            {% if queen_rankings.index(queen_dict) == 3 %}
+                {% set column_name = "Bottom 2" %}
+            {% endif %}
+            {% if queen_rankings.index(queen_dict) == 4 %}
+                {% set column_name = "Eliminated" %}
+            {% endif %}
+            {% if queen_rankings.index(queen_dict) == 5 %}
+                {% set column_name = "Immune" %}
+            {% endif %}
+            {% for index in range(queen_dict['drag_queen_ids']|length) %}
+                <div class = "episode_rank episode_queen_graph"><h3>{{column_name}}</h3></div>
+                <a href="/drag_queen_info/{{queen_dict['drag_queen_ids'][index]}}">
+                    <div class = "episode_drag_queen episode_queen_graph">
+                        <div class = "drag_queen_circle episode_circle">
+                            <img class = "drag_queen_circle episode_circle" src = "/static/photos/drag_queen_circle/{{queen_dict['drag_queen_ids'][index]}}.webp">
+                        </div>
+                        <h3>{{queen_dict['drag_queen_names'][index]}}</h3>
+                    </div>
+                </a>
+            {% endfor %}   
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

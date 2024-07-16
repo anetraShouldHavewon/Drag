@@ -197,13 +197,13 @@ def drag_queens(id):
             famous_queen_names.append(queen_name)
 
         return render_template("drag_queens.html", 
-                           page_id=id,
-                           season_name=recent_season_name,
-                           drag_queen_ids=recentdrag_queen_ids, 
-                           drag_queen_names=recentdrag_queen_names,
-                           famous_queen_ids=famous_queen_ids,
-                           famous_queen_names=famous_queen_names,
-                           title="Drag Queens")
+                               page_id=id,
+                               season_name=recent_season_name,
+                               drag_queen_ids=recentdrag_queen_ids, 
+                               drag_queen_names=recentdrag_queen_names,
+                               famous_queen_ids=famous_queen_ids,
+                               famous_queen_names=famous_queen_names,
+                               title="Drag Queens")
 
     else:
         # The next section codes for a page that allows users to 
@@ -289,43 +289,54 @@ def drag_queen_info(id):
 
 @app.route("/episode_info/<int:id>")
 def episode_info(id): 
-    max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Episodes", None)[0]
-    min_drag_queen_id = sql(True, "SELECT MIN(id) FROM Episodes", None)[0]
-    if id > max_drag_queen_id or id < min_drag_queen_id:
+    if id > max_drag_queen_id or id < 1:
         abort(404)
 
-    episode_info = sql(True, "SELECT name, challenge_description FROM Episodes WHERE id = ?", id)
-    episode_name = episode_info[0]
+    episode_info = sql(True, '''SELECT name, challenge_description, 
+                       runway_theme, img_link FROM Episodes WHERE 
+                       id = ?''', id)
+    episode_name = episode_info[0].upper()
     episode_challenge_description = episode_info[1]
+    episode_runway_theme = episode_info[2]
+    episode_img = episode_info[3]
     episode_challenge_type = sql(True, "SELECT Maxi_Challenge_Type.name FROM Episodes JOIN Maxi_Challenge_Type ON Episodes.maxi_challenge_type_id = Maxi_Challenge_Type.id WHERE Episodes.id = ?", id)[0]
     episode_queens = fetchall_info_list("SELECT Drag_Queens.name, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
+    episode_queens_ids = fetchall_info_list("SELECT Drag_Queens.id, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
     episode_placing_ids = fetchall_info_list("SELECT Drag_Queen_Episodes.placing_id FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
    
-    safe_queens = []
-    immune = []
-    winner = []
-    top_2 = []
-    eliminated = []
-    bottom_2 = []
+    safe_queens = {"drag_queen_ids": [],"drag_queen_names": []}
+    immune = {"drag_queen_ids": [],"drag_queen_names": []}
+    winner = {"drag_queen_ids": [],"drag_queen_names": []}
+    top_2 = {"drag_queen_ids": [],"drag_queen_names": []}
+    eliminated = {"drag_queen_ids": [],"drag_queen_names": []}
+    bottom_2 = {"drag_queen_ids": [],"drag_queen_names": []}
 
     for index in range(len(episode_queens)):
         if episode_placing_ids[index] == 4:
-            safe_queens.append(episode_queens[index])
+            safe_queens["drag_queen_ids"].append(episode_queens_ids[index])
+            safe_queens["drag_queen_names"].append(episode_queens[index])
         if episode_placing_ids[index] == 1:
-            immune.append(episode_queens[index])
+            immune["drag_queen_ids"].append(episode_queens_ids[index])
+            immune["drag_queen_names"].append(episode_queens[index])
         if episode_placing_ids[index] == 8:
-            winner.append(episode_queens[index])
+            winner["drag_queen_ids"].append(episode_queens_ids[index])
+            winner["drag_queen_names"].append(episode_queens[index])
         if episode_placing_ids[index] == 7:
-            top_2.append(episode_queens[index])
+            top_2["drag_queen_ids"].append(episode_queens_ids[index])
+            top_2["drag_queen_names"].append(episode_queens[index])
         if episode_placing_ids[index] == 2:
-            eliminated.append(episode_queens[index])
+            eliminated["drag_queen_ids"].append(episode_queens_ids[index])
+            eliminated["drag_queen_names"].append(episode_queens[index])
         if episode_placing_ids[index] == 6:
-            bottom_2.append(episode_queens[index])
-    queen_rankings = [winner, top_2, safe_queens, bottom_2, eliminated, immune] 
+            bottom_2["drag_queen_ids"].append(episode_queens_ids[index])
+            bottom_2["drag_queen_names"].append(episode_queens[index])
+    queen_rankings = [winner, top_2, safe_queens, bottom_2, eliminated, immune]
     
     return render_template("episode_info.html", 
-                           queen_rankings=queen_rankings, 
-                           episode_name=episode_name, 
+                           queen_rankings=queen_rankings,
+                           episode_name=episode_name,
+                           episode_img=episode_img,
+                           episode_runway_theme=episode_runway_theme,
                            episode_challenge_description=episode_challenge_description, 
                            episode_challenge_type=episode_challenge_type, 
                            title="Episode Information")

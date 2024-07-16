@@ -66,16 +66,38 @@ def drag_queen_filter(constraint_id, filter):
 
         return drag_queen_ids, drag_queen_names
 
-id = 3
-#thing = cursor.execute("SELECT id, name, age FROM Drag_Queens WHERE Drag_Queens.age BETWEEN ? AND ?", ([20, 30])).fetchall()
-famous_queen_ids = [15, 16, 19, 20, 22]
-famous_queen_names = []
-for queen_id in famous_queen_ids:
-    queen_name = sql(True, '''SELECT name FROM Drag_Queens 
-                        WHERE id = ?''', queen_id)[0]
-    famous_queen_names.append(queen_name)
+episode_queens = fetchall_info_list("SELECT Drag_Queens.name, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", 1, 0)
+episode_queens_ids = fetchall_info_list("SELECT Drag_Queens.id, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", 1, 0)
+episode_placing_ids = fetchall_info_list("SELECT Drag_Queen_Episodes.placing_id FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", 1, 0)
+   
+safe_queens = {"drag_queen_ids": [],"drag_queen_names": []}
+immune = {"drag_queen_ids": [],"drag_queen_names": []}
+winner = {"drag_queen_ids": [],"drag_queen_names": []}
+top_2 = {"drag_queen_ids": [],"drag_queen_names": []}
+eliminated = {"drag_queen_ids": [],"drag_queen_names": []}
+bottom_2 = {"drag_queen_ids": [],"drag_queen_names": []}
 
-print(famous_queen_names)
+for index in range(len(episode_queens)):
+    if episode_placing_ids[index] == 4:
+        safe_queens["drag_queen_ids"].append(episode_queens_ids[index])
+        safe_queens["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 1:
+        immune["drag_queen_ids"].append(episode_queens_ids[index])
+        immune["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 8:
+        winner["drag_queen_ids"].append(episode_queens_ids[index])
+        winner["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 7:
+        top_2["drag_queen_ids"].append(episode_queens_ids[index])
+        top_2["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 2:
+        eliminated["drag_queen_ids"].append(episode_queens_ids[index])
+        eliminated["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 6:
+        bottom_2["drag_queen_ids"].append(episode_queens_ids[index])
+        bottom_2["drag_queen_names"].append(episode_queens[index])
+queen_rankings = [winner, top_2, safe_queens, bottom_2, eliminated, immune]
+print(queen_rankings)
 
 
 
