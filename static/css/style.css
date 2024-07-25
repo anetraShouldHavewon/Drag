@@ -363,7 +363,7 @@ mark{
 
 .episode_container:hover .episode_filter{
     background-color: rgba(10, 10, 10, 0.383);
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(0.2px);
 }
 
 .episode_container:hover .episode{
