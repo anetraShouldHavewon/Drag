@@ -58,9 +58,12 @@ nav{
     clear:both;
 }
 
-ul{
-    list-style-type: none;
-    overflow: hidden;
+.navgrid{
+    grid-template-columns: 200px 200px 200px auto;
+}
+
+.navflex{
+    
 }
 
 ul li{
@@ -90,6 +93,10 @@ ul li a:hover::after{
     width: 100%;
 }
 
+.loginbutton{
+    float:inline-end;
+    padding-right: 5%;
+}
 /*Home Page*/
 .home_hero{
     display: grid;
@@ -428,3 +435,4 @@ mark{
     height: 50px;
     width: 50px;
 }
+

@@ -1,5 +1,5 @@
 '''My Project'''
-from flask import Flask, render_template, abort
+from flask import Flask, render_template, abort, request, session, redirect
 import sqlite3, random
 
 app = Flask(__name__)
@@ -340,6 +340,26 @@ def episode_info(id):
                            episode_challenge_description=episode_challenge_description, 
                            episode_challenge_type=episode_challenge_type, 
                            title="Episode Information")
+
+
+# Code for the login and logout route courtesy of Sir Steven Rodkiss
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    # if the user enters information into the form in login.html
+    if request.method == "POST":
+        username = request.form['username']
+        password = request.form['password']
+        correct_username = "Tram Dang"
+        correct_password = "howyoudoinggorge12"
+        if username == correct_username and password == correct_password:
+            session['login'] = True
+        
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session['login'] = False
+    return redirect("/")
 
 @app.errorhandler(404)
 def error(e):
