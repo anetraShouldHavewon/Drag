@@ -59,26 +59,29 @@ nav{
 }
 
 .navgrid{
+    display: grid;
     grid-template-columns: 200px 200px 200px auto;
 }
 
 .navflex{
-    
-}
-
-ul li{
-    float: inline-start;
-    padding-right: 5%;
+    display: flex;
+    justify-content: center;
     font-family: Shrikhand;
 }
 
-ul li a{
+/*ul li{
+    float: inline-start;
+    padding-right: 5%;
+    font-family: Shrikhand;
+}*/
+
+.navflex a{
     color: #9b57ef;
     position: relative;
     font-size: 20px;
 }
 
-ul li a::after{
+.navflex a::after{
     content: '';
     height: 0.1em;
     width: 0;
@@ -89,13 +92,15 @@ ul li a::after{
     transition:width 0.2s;
 }
 
-ul li a:hover::after{
+.navflex a:hover::after{
     width: 100%;
 }
 
 .loginbutton{
-    float:inline-end;
-    padding-right: 5%;
+    display: flex;
+    justify-content: end;
+    font-family: Shrikhand;
+    padding-right: 40px;
 }
 /*Home Page*/
 .home_hero{

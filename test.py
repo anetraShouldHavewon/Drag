@@ -35,19 +35,13 @@ def fetchall_info_list(fetch_query, query_condition, column_index):
         return_list.append(item[column_index])
     return return_list
 
-franchise_dict = {}
-
-franchise_names = fetchall_info_list("SELECT name FROM Franchises",
-                                        None, 0)
-franchise_ids = fetchall_info_list("SELECT id FROM Franchises",
-                                        None, 0)
-for index, franchise_id in enumerate(franchise_ids):
-    season_ids = fetchall_info_list('''SELECT id FROM Seasons WHERE
-                                    franchise_id = ?''', franchise_id, 0)
-    season_names = fetchall_info_list('''SELECT name FROM Seasons WHERE
-                                    franchise_id = ?''', franchise_id, 0)
-    franchise_dict[franchise_names[index]] = [season_ids, season_names]
-print(franchise_dict, franchise_ids)
+famous_queen_ids = [15, 16, 19, 20, 22]
+famous_queen_names = []
+for queen_id in famous_queen_ids:
+    queen_name = sql(True, '''SELECT name FROM Drag_Queens 
+                        WHERE id = ?''', queen_id)[0]
+    famous_queen_names.append(queen_name)
+print(famous_queen_names)
 
 
 

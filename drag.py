@@ -3,7 +3,7 @@ from flask import Flask, render_template, abort, request, session, redirect
 import sqlite3, random
 
 app = Flask(__name__)
-
+app.config['SECRET KEY'] = "Howdahailyougonnalovesomebodyelse"
 
 def sql(fetchone, query, constraint):
     '''Executes sql queries based on whether they can be executed with a '''
@@ -347,13 +347,15 @@ def episode_info(id):
 def login():
     # if the user enters information into the form in login.html
     if request.method == "POST":
-        username = request.form['username']
-        password = request.form['password']
-        correct_username = "Tram Dang"
+        username = request.form.get('user') # using .get allows you to get stuff using the name
+        password = request.form.get('pass')
+        correct_username = "anetraShouldHavewon"
         correct_password = "howyoudoinggorge12"
         if username == correct_username and password == correct_password:
             session['login'] = True
-        
+        else:
+            return redirect("/")
+     
     return render_template("login.html")
 
 @app.route("/logout")
