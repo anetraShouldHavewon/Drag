@@ -1,9 +1,11 @@
 '''My Project'''
-from flask import Flask, render_template, abort, request, session, redirect
+from flask import Flask, render_template, abort, request, session, redirect, flash
 import sqlite3, random
 
 app = Flask(__name__)
-app.config['SECRET KEY'] = "Howdahailyougonnalovesomebodyelse"
+# The secret key is there so that the website can successfully encrypt stuff inside
+# the sessions dictionary
+app.config['SECRET_KEY'] = "Howdahailyougonnalovesomebodyelse" 
 
 def sql(fetchone, query, constraint):
     '''Executes sql queries based on whether they can be executed with a '''
@@ -353,8 +355,9 @@ def login():
         correct_password = "howyoudoinggorge12"
         if username == correct_username and password == correct_password:
             session['login'] = True
+            flash("You have infiltrated my website")
         else:
-            return redirect("/")
+            flash("Wrong username or password")
      
     return render_template("login.html")
 
@@ -366,5 +369,6 @@ def logout():
 @app.errorhandler(404)
 def error(e):
     return render_template("404.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
