@@ -102,6 +102,11 @@ nav{
     font-family: Shrikhand;
     padding-right: 40px;
 }
+
+.navgridalt{
+    display: grid;
+    grid-template-columns: 200px 200px 200px auto 200px;
+}
 /*Home Page*/
 .home_hero{
     display: grid;
