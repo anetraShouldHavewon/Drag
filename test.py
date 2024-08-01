@@ -1,4 +1,4 @@
-import sqlite3, random
+import sqlite3, random, os
 
 connection = sqlite3.connect("drag_queen.db")
 cursor = connection.cursor()
@@ -35,13 +35,19 @@ def fetchall_info_list(fetch_query, query_condition, column_index):
         return_list.append(item[column_index])
     return return_list
 
-famous_queen_ids = [15, 16, 19, 20, 22]
-famous_queen_names = []
-for queen_id in famous_queen_ids:
-    queen_name = sql(True, '''SELECT name FROM Drag_Queens 
-                        WHERE id = ?''', queen_id)[0]
-    famous_queen_names.append(queen_name)
-print(famous_queen_names)
+# https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
+table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'", None, 0)
+table_names.pop(0)
+for table_name in table_names:
+    print(table_name)
+    tablename1 = cursor.execute("SELECT * FROM ?", (table_name,))
+    print(tablename1)
+    print(tablename1.description)
+
+
+#for table_name in table_names:
+    #table_columns[table_name]
+#print(table_names)
 
 
 
