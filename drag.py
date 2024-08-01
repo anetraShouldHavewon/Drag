@@ -31,6 +31,22 @@ def sql(fetchone, query, constraint):
 
     return result
 
+def alt_sql(fetchone, query):
+    connection = sqlite3.connect("drag_queen.db")
+    cursor = connection.cursor()
+    if fetchone is True:
+        result = cursor.execute(query).fetchone()
+    if fetchone is False:  # if the query needs a fetchall
+        result = cursor.execute(query).fetchall()
+
+    return result
+
+def alt_fetchall_info_list(fetch_query, column_index):
+    fetchall_output = alt_sql(False, fetch_query)
+    return_list = []
+    for item in fetchall_output:
+        return_list.append(item[column_index])
+    return return_list
 
 def fetchall_info_list(fetch_query, query_condition, column_index):
     '''This function puts all the output from a fetchall query into a list'''
@@ -359,10 +375,67 @@ def login():
         else:
             flash("Wrong username or password")
      
-    return render_template("login.html")
+    return render_template("login.html",
+                           title="Login")
 
-@app.route("/admin")
+@app.route("/admin/<int:id>")
+def admin(id):
+    # A class which stores the name, and two functions for an sql table
+    class Table:
+        def __init__(self, name):
+            self.name = name
 
+        # Getting all the column names of a specific table
+        def get_column_names(self):
+            column_names_query = alt_sql(False, "PRAGMA table_info({table_name})".format(table_name=self.name))
+            column_names = []
+            for column in column_names_query:
+                if column[5] != 1:
+                    column_name = column[1]
+                    column_names.append(column_name)
+            return column_names
+        
+        # Getting the column_name, derived table and derived table column
+        # of a specific table
+        def get_foreign_keys(self):
+            foreign_key_info = alt_sql(False, "PRAGMA foreign_key_list({table_name})".format(table_name=self.name))
+            if len(foreign_key_info) != 0:
+                foreign_key_columns = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 3)
+                foreign_key_columns = []
+                foreign_key_options = {}
+                foreign_key_tables = []
+                foreign_key_table_columns = []
+                for index, info in enumerate(foreign_key_info):
+                    foreign_key_option = cursor.execute("SELECT * FROM {table_name} ORDER BY id ASC".format()).fetchall()
+                    foreign_key_option
+                    for 
+                    foreign_key_columns.append(info[3])
+                    foreign_key_table= info[2]
+                    foreign_key_options[foreign_key_table] = foreign_key_option
+
+                return [foreign_key_columns, foreign_key_tables, 
+                        foreign_key_table_columns]
+        
+
+    # Code from https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
+    # Creating a dictionary with table names as keys and the table's column names and foreign key info
+    # as the values
+    table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'", None, 0)
+    table_names.pop(0)
+    table_columns_dict = {}
+    for table_name in table_names:
+        table = Table(table_name)
+        table_column_names = table.get_column_names()
+        table_foreign_key_names = table.get_foreign_keys()
+        table_columns_dict[table_name] = [table_column_names, 
+                                        table_foreign_key_names]
+        
+    return render_template("admin.html",
+                           title="Admin",
+                           table_info=table_columns_dict,
+                           table_names=table_names,
+                           table_id=id)
+        
 @app.route("/logout")
 def logout():
     session['login'] = False

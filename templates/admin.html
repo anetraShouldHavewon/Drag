@@ -1,4 +1,22 @@
 {% extends "layout.html" %}
 {% block content %}
+<div>
+    <h2>TABLES</h2>
+    <!--https://stackoverflow.com/questions/25373154/how-to-iterate-through-a-list-of-dictionaries-in-jinja-template-->
+    {% for index in range(table_names|length) %}
+        <a href="/admin/{{index+1}}">
+            <button class = "filter_btn"><h2>{{table_names[index]}}</h2></button>
+        </a>
+    {% endfor %}
+</div>
 
+{% set table_name = table_names[table_id-1] %}
+{% set table_column_names = table_info[table_name][0] %}
+<h2>{{table_name}}</h2>
+<form>
+    {% for column in table_column_names %}
+        <label for="{{column}}"><h3>{{column}}</h3></label>
+        <input type="text" name="{{column}}">
+    {% endfor %}
+</form>
 {% endblock %}
