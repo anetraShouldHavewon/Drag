@@ -378,14 +378,13 @@ def login():
     return render_template("login.html",
                            title="Login")
 
-@app.route("/admin/<int:id>")
+@app.route("/admin/<int:id>", methods=["GET", "POST"])
 def admin(id):
     # A class which stores the name, and two functions for an sql table
     class Table:
         def __init__(self, name):
             self.name = name
 
-        # Getting all the column names of a specific table
         def get_column_names(self):
             column_names_query = alt_sql(False, "PRAGMA table_info({table_name})".format(table_name=self.name))
             column_names = []
@@ -395,26 +394,19 @@ def admin(id):
                     column_names.append(column_name)
             return column_names
         
-        # Getting the column_name, derived table and derived table column
-        # of a specific table
         def get_foreign_keys(self):
             foreign_key_info = alt_sql(False, "PRAGMA foreign_key_list({table_name})".format(table_name=self.name))
             if len(foreign_key_info) != 0:
                 foreign_key_columns = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 3)
-                foreign_key_columns = []
-                foreign_key_options = {}
-                foreign_key_tables = []
-                foreign_key_table_columns = []
-                for index, info in enumerate(foreign_key_info):
-                    foreign_key_option = cursor.execute("SELECT * FROM {table_name} ORDER BY id ASC".format()).fetchall()
-                    foreign_key_option
-                    for 
-                    foreign_key_columns.append(info[3])
-                    foreign_key_table= info[2]
-                    foreign_key_options[foreign_key_table] = foreign_key_option
+                foreign_key_tables = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 2)
+                foreign_key_table_columns = {}
+                for index, column in enumerate(foreign_key_columns):
+                    foreign_key_table = foreign_key_tables[index]
+                    foreign_key_datalist = alt_fetchall_info_list("SELECT name FROM {table_name}".format(table_name=foreign_key_table), 0)
+                    foreign_key_table_columns[column] = foreign_key_datalist
 
-                return [foreign_key_columns, foreign_key_tables, 
-                        foreign_key_table_columns]
+                return [foreign_key_table_columns,
+                        foreign_key_columns]
         
 
     # Code from https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
@@ -427,9 +419,15 @@ def admin(id):
         table = Table(table_name)
         table_column_names = table.get_column_names()
         table_foreign_key_names = table.get_foreign_keys()
-        table_columns_dict[table_name] = [table_column_names, 
-                                        table_foreign_key_names]
-        
+        table_columns_dict[table_name] = [table_column_names,
+                                          table_foreign_key_names]
+    
+    # Dealing with the data from the form
+    if request.method == "POST":
+        table_column_names = table_columns_dict[table_names[id-1]][0]
+        for table_column in table_column_names:
+            answer = request.form.get(table_column)
+            
     return render_template("admin.html",
                            title="Admin",
                            table_info=table_columns_dict,

@@ -1,7 +1,5 @@
 import sqlite3, random, os
 
-connection = sqlite3.connect("drag_queen.db")
-cursor = connection.cursor()
 def sql(fetchone, query, constraint):
     '''Executes sql queries based on whether they can be executed with a '''
     '''fetchone or fetchall. Gives one result if fetchone, gives a list of'''
@@ -45,6 +43,13 @@ def alt_sql(fetchone, query):
 
     return result
 
+def alt_fetchall_info_list(fetch_query, column_index):
+    fetchall_output = alt_sql(False, fetch_query)
+    return_list = []
+    for item in fetchall_output:
+        return_list.append(item[column_index])
+    return return_list
+
 class Table:
     def __init__(self, name):
         self.name = name
@@ -62,14 +67,15 @@ class Table:
         foreign_key_info = alt_sql(False, "PRAGMA foreign_key_list({table_name})".format(table_name=self.name))
         if len(foreign_key_info) != 0:
             foreign_key_columns = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 3)
-            #foreign_key_tables = []
-            #foreign_key_table_columns = []
-            #for info in foreign_key_info:
-                #foreign_key_columns.append(info[3])
-                #foreign_key_tables.append(info[2])
-                #foreign_key_table_columns.append(info[4])
+            foreign_key_tables = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 2)
+            foreign_key_table_columns = {}
+            for index, column in enumerate(foreign_key_columns):
+                foreign_key_table = foreign_key_tables[index]
+                foreign_key_datalist = alt_fetchall_info_list("SELECT name FROM {table_name}".format(table_name=foreign_key_table), 0)
+                foreign_key_table_columns[column] = foreign_key_datalist
 
-            return [foreign_key_columns]
+            return [foreign_key_table_columns,
+                    foreign_key_columns]
         
 
 # https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
@@ -83,9 +89,30 @@ for table_name in table_names:
     table_columns_dict[table_name] = [table_column_names, 
                                       table_foreign_key_names]
 
-print(table_columns_dict["Drag_Queen_Episodes"][1])
+def sql_insert(table, column, value):
+    connection = sqlite3.connect("drag_queen.db")
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO {table} ({column}) VALUES ({value})".format(table=table, column=column), )
+    connection.commit()
+    connection.close()
 
 
+table_name = table_names[6]
+table_column_names = table_columns_dict[table_name][0]
+#for table_column in table_column_names:
+    
+
+
+connection = sqlite3.connect("drag_queen.db")
+answer = 'jjabrams'
+column_name = 'name'
+cursor = connection.cursor()
+#cursor.execute("INSERT INTO Book(title,number_of_pages,author) VALUES (?,?,?)", ((title,), (num_of_page,), (author,)))
+cursor.execute("INSERT INTO {table}({column}) VALUES (?)".format(table=table_name, column=column_name), ((answer,)))
+connection.commit()
+connection.close()
+thing = sql(True, "SELECT * FROM Drag_Queens WHERE name = ?", answer)   
+print(thing)
 
 
 
