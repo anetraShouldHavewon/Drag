@@ -92,27 +92,23 @@ for table_name in table_names:
 def sql_insert(table, column, value):
     connection = sqlite3.connect("drag_queen.db")
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO {table} ({column}) VALUES ({value})".format(table=table, column=column), )
+    cursor.execute("INSERT INTO {table}({columns}) VALUES (?)".format(table=table, column=column), ((value,)))
     connection.commit()
     connection.close()
 
 
 table_name = table_names[6]
-table_column_names = table_columns_dict[table_name][0]
-#for table_column in table_column_names:
-    
-
-
+table_column_names = tuple(table_columns_dict[table_name][0])
+print(table_column_names)
+answer = 'Alyssa Edwards'
 connection = sqlite3.connect("drag_queen.db")
-answer = 'jjabrams'
-column_name = 'name'
 cursor = connection.cursor()
-#cursor.execute("INSERT INTO Book(title,number_of_pages,author) VALUES (?,?,?)", ((title,), (num_of_page,), (author,)))
-cursor.execute("INSERT INTO {table}({column}) VALUES (?)".format(table=table_name, column=column_name), ((answer,)))
+cursor.execute("""INSERT INTO Drag_Queens(?, ?) VALUES (?, ?)""", ('hey', 'howareyou'))
 connection.commit()
 connection.close()
+
 thing = sql(True, "SELECT * FROM Drag_Queens WHERE name = ?", answer)   
-print(thing)
+print(table_column_names)
 
 
 
