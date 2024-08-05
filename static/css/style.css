@@ -447,3 +447,18 @@ mark{
     width: 50px;
 }
 
+/*404*/
+.error_text_container{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.error_buttons{
+    width: 50vw;
+    height: 400px;
+}

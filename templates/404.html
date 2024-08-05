@@ -1,6 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>You did bad</h2>
-<button onclick = "history.back()">Run Away</button>
-<a href = "/"><button>Go Home</button></a>
+<div class="error_text_container">
+    <div><h1>404</h1></div>
+    <div><h2>You did an oopsie</h2></div>
+    <div><h2>This url doesn't exist</h2></div>
+    <div class="error_buttons">
+        <button onclick = "history.back()"><h2>Duckwalk back to the previous page</h2></button>
+        <a href = "/"><button><h2>Deathdrop Home</h2></button></a>
+    </div>
+</div>
+
 {% endblock %}

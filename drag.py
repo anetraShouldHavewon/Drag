@@ -56,6 +56,14 @@ def fetchall_info_list(fetch_query, query_condition, column_index):
         return_list.append(item[column_index])
     return return_list
 
+def sql_insert(table, column, value):
+    '''This function carries out all the insert queries'''
+    connection = sqlite3.connect("drag_queen.db")
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO %s %s VALUES %s" % (table, column, value))
+    connection.commit()
+    connection.close()
+
 # Getting the maximum ids from the drag_queens table
 max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
 
@@ -422,11 +430,18 @@ def admin(id):
         table_columns_dict[table_name] = [table_column_names,
                                           table_foreign_key_names]
     
-    # Dealing with the data from the form
+    # Dealing with the data from the form by putting the data inputted into their respective
+    # columns in the database
     if request.method == "POST":
-        table_column_names = table_columns_dict[table_names[id-1]][0]
+        table_name = table_names[id-1]
+        table_column_names = table_columns_dict[table_name][0]
+        values = []
         for table_column in table_column_names:
             answer = request.form.get(table_column)
+            values.append(answer)
+        values = tuple(values)
+        table_column_names = tuple(table_column_names)
+        sql_insert(table_name, table_column_names, values)
             
     return render_template("admin.html",
                            title="Admin",

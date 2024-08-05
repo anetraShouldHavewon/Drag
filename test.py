@@ -92,7 +92,7 @@ for table_name in table_names:
 def sql_insert(table, column, value):
     connection = sqlite3.connect("drag_queen.db")
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO {table}({columns}) VALUES (?)".format(table=table, column=column), ((value,)))
+    cursor.execute("INSERT INTO %s %s VALUES %s" % (table, column, value))
     connection.commit()
     connection.close()
 
@@ -100,15 +100,10 @@ def sql_insert(table, column, value):
 table_name = table_names[6]
 table_column_names = tuple(table_columns_dict[table_name][0])
 print(table_column_names)
-answer = 'Alyssa Edwards'
-connection = sqlite3.connect("drag_queen.db")
-cursor = connection.cursor()
-cursor.execute("""INSERT INTO Drag_Queens(?, ?) VALUES (?, ?)""", ('hey', 'howareyou'))
-connection.commit()
-connection.close()
+answer = ('Alyssa Edwards', 'Being fabulous', 'heeeyyy', 'Texas', 50, 'gg', 'gg')
+sql_insert(table_name, table_column_names, answer)
 
-thing = sql(True, "SELECT * FROM Drag_Queens WHERE name = ?", answer)   
-print(table_column_names)
+
 
 
 
