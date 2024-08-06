@@ -449,16 +449,24 @@ mark{
 
 /*404*/
 .error_text_container{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    text-align: center;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
+    display: grid;
+    grid-template-columns: auto;
 }
 
 .error_buttons{
-    width: 50vw;
-    height: 400px;
+    display: flex;
+    justify-content: center;
+    height: 20vh;
+}
+
+.error_text{
+    display: flex;
+    justify-content: center;
+    padding: -40px;
+    align-items: center;
+}
+
+.fourofour{
+    font-size: 20vh;
+    height: 50vh;
 }

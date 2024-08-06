@@ -170,6 +170,9 @@ def season_info(id):
 
 @app.route("/drag_queens/<int:id>")
 def drag_queens(id):
+    if id > 4 or id < 1:
+        abort(404)
+
     def drag_queen_filter(constraint, filter):
         # Getting the ids and names of drag queens from a specific season
         if filter == 1:
