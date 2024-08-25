@@ -3,15 +3,19 @@
 <div class = "drag_queens_filter">
     <h2>Filter by:</h2>
     <div class = "drag_queens_filter_buttons">
-        <a href = "/drag_queens/1">
-            <button class = "filter_btn"><h2>Seasons</h2></button>
-        </a>
-        <a href = "/drag_queens/2">
-            <button class = "filter_btn"><h2>City</h2></button>
-        </a>
-        <a href = "/drag_queens/3">
-            <button class = "filter_btn"><h2>Age</h2></button>
-        </a>
+        {% set btn_names = ["Seasons", "City", "Age"] %}
+        {% for btn_page_id in range(3) %}
+            {% set btn_id = btn_page_id+1 %}
+            {% if btn_id == page_id %}
+            <a href = "/drag_queens/{{btn_id}}">
+                <button class = "filter_btn selected"><h2>{{btn_names[btn_page_id]}}</h2></button>
+            </a>
+            {% else %}
+            <a href = "/drag_queens/{{btn_id}}">
+                <button class = "filter_btn"><h2>{{btn_names[btn_page_id]}}</h2></button>
+            </a>
+            {% endif %}
+        {% endfor %}
     </div>
 </div>
 

@@ -97,11 +97,6 @@ def sql_insert(table, column, value):
     connection.close()
 
 
-table_name = table_names[6]
-table_column_names = tuple(table_columns_dict[table_name][0])
-print(table_column_names)
-answer = ('Alyssa Edwards', 'Being fabulous', 'heeeyyy', 'Texas', 50, 'gg', 'gg')
-sql_insert(table_name, table_column_names, answer)
 
 
 

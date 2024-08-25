@@ -82,11 +82,12 @@ def home():
     # Randomly drawing out the id and names of five drag queens
     drag_queen_names = ["Angeria Paris VanMicheals"]
     drag_queen_ids = [15]
+    drag_queen_database_ids = fetchall_info_list("SELECT id FROM Drag_Queens", None, 0)
     for id in range(9):
         while True:
             # This loop is here to prevent multiple of the same
             # ids from appearing in the list
-            random_id = random.randint(1, max_drag_queen_id)
+            random_id = random.choice(drag_queen_database_ids)
             if random_id not in drag_queen_ids:
                 break
         drag_name = sql(True, '''SELECT name FROM 
@@ -170,7 +171,9 @@ def season_info(id):
 
 @app.route("/drag_queens/<int:id>")
 def drag_queens(id):
-    if id > 4 or id < 1:
+    # Redirecting to the 404 page when all ids that are not between
+    # 0 and 3
+    if id > 3 or id < 0:
         abort(404)
 
     def drag_queen_filter(constraint, filter):
@@ -290,14 +293,13 @@ def drag_queens(id):
 
 @app.route("/drag_queen_info/<int:id>")
 def drag_queen_info(id):
-    # Leading users to the error 404 page when the id is larger or smaller
-    # than a certain range of acceptable ids
-    if id > max_drag_queen_id or id < 1:
-        abort(404)
-
     # Getting the names, specialty skills, city of origin and age of 
     # a particular drag queen
     drag_queen_info = sql(True, "SELECT * FROM Drag_Queens WHERE id = ?", id)
+    # Leading users to the error 404 page when the query gives 
+    # None result
+    if drag_queen_info is None:
+        abort(404)
     name = drag_queen_info[1]
     specialty_skills = drag_queen_info[2]
     description = drag_queen_info[3]
@@ -318,12 +320,11 @@ def drag_queen_info(id):
 
 @app.route("/episode_info/<int:id>")
 def episode_info(id): 
-    if id > max_drag_queen_id or id < 1:
-        abort(404)
-
     episode_info = sql(True, '''SELECT name, challenge_description, 
                        runway_theme, img_link FROM Episodes WHERE 
                        id = ?''', id)
+    if episode_info is None:
+        abort(404)
     episode_name = episode_info[0].upper()
     episode_challenge_description = episode_info[1]
     episode_runway_theme = episode_info[2]

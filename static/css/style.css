@@ -69,12 +69,6 @@ nav{
     font-family: Shrikhand;
 }
 
-/*ul li{
-    float: inline-start;
-    padding-right: 5%;
-    font-family: Shrikhand;
-}*/
-
 .navflex a{
     color: #9b57ef;
     position: relative;
@@ -138,9 +132,11 @@ nav{
 
 .home_hero_rupaul{
     background-image: url(/static/photos/other/home_page_hero.webp);
-    background-position: 0px -136px;
+    background-position: 0px -180px;
     background-size: 640px 640px;
+    padding-top: 30px;
     width: 512px;
+    height: 500px;
     background-repeat: no-repeat;
 
 }
@@ -271,8 +267,8 @@ mark{
 }
 
 .filter_btn{
-    background-color: none;
-    border: #e4ccff 0.5px solid;
+    background-color: #9b57ef;
+    border: none;
     padding: 2px 38px;
     width: 160px;
     text-align: center;
@@ -281,6 +277,20 @@ mark{
     border-radius: 20px;
     cursor: pointer;
     flex-wrap: wrap;
+    transition: border 0.5s, background-color 0.5s;
+}
+
+.filter_btn:hover{
+    border: #9b57ef 2px solid;
+    background-color: #925bf700;
+}
+
+.filter_btn:hover h2{
+    color: #9b57ef;
+}
+
+.selected{
+    background-color: #5e15b7;
 }
 
 /*Season Information Page*/
