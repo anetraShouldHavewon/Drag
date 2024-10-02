@@ -64,6 +64,7 @@ def sql_insert(table, column, value):
     connection.commit()
     connection.close()
 
+
 # Getting the maximum ids from the drag_queens table
 max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
 
@@ -397,6 +398,7 @@ def admin(id):
         def __init__(self, name):
             self.name = name
 
+        # Get the names of the columns that don't contain any foreign keys
         def get_column_names(self):
             column_names_query = alt_sql(False, "PRAGMA table_info({table_name})".format(table_name=self.name))
             column_names = []
@@ -406,10 +408,13 @@ def admin(id):
                     column_names.append(column_name)
             return column_names
         
+        # Get the names of the columns that contain any foreign keys
+        # and the names of the tables the foreign key is from
+        # and the 'name' row from the tables the foreign key is from
         def get_foreign_keys(self):
             foreign_key_info = alt_sql(False, "PRAGMA foreign_key_list({table_name})".format(table_name=self.name))
             if len(foreign_key_info) != 0:
-                foreign_key_columns = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 3)
+                foreign_key_columns = alt_fetchall_info_list('''PRAGMA foreign_key_list({table_name})'''.format(table_name=self.name), 3)
                 foreign_key_tables = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 2)
                 foreign_key_table_columns = {}
                 for index, column in enumerate(foreign_key_columns):
@@ -418,12 +423,13 @@ def admin(id):
                     foreign_key_table_columns[column] = foreign_key_datalist
 
                 return [foreign_key_table_columns,
-                        foreign_key_columns]
+                        foreign_key_columns,
+                        foreign_key_tables]
         
 
     # Code from https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
-    # Creating a dictionary with table names as keys and the table's column names and foreign key info
-    # as the values
+    # Creating a dictionary with table names as keys and the table's column
+    # names and foreign key info as the values
     table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'", None, 0)
     table_names.pop(0)
     table_columns_dict = {}
@@ -438,10 +444,16 @@ def admin(id):
     # columns in the database
     if request.method == "POST":
         table_name = table_names[id-1]
-        table_column_names = table_columns_dict[table_name][0]
+        table_foreign_key_names = table_columns_dict[table_name][1][1]
+        table_foreign_key_tables = table_columns_dict[table_name][1][2]
+        table_column_names = table_columns_dict[table_name][0] + table_foreign_key_names     
         values = []
         for table_column in table_column_names:
             answer = request.form.get(table_column)
+            if table_column in table_foreign_key_names:
+                index = table_foreign_key_names.index(table_column)
+                foreign_key_table = table_foreign_key_tables[index]
+                answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, answer))[0]
             values.append(answer)
         values = tuple(values)
         table_column_names = tuple(table_column_names)

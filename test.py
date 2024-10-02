@@ -75,7 +75,8 @@ class Table:
                 foreign_key_table_columns[column] = foreign_key_datalist
 
             return [foreign_key_table_columns,
-                    foreign_key_columns]
+                    foreign_key_columns,
+                    foreign_key_tables]
         
 
 # https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
@@ -89,6 +90,9 @@ for table_name in table_names:
     table_columns_dict[table_name] = [table_column_names, 
                                       table_foreign_key_names]
 
+table_foreign_key_names = table_columns_dict[table_names[2]][1][1]
+table_foreign_key_tables = table_columns_dict[table_names[2]][1][2]
+print(table_foreign_key_names, table_foreign_key_tables)
 def sql_insert(table, column, value):
     connection = sqlite3.connect("drag_queen.db")
     cursor = connection.cursor()
@@ -96,6 +100,14 @@ def sql_insert(table, column, value):
     connection.commit()
     connection.close()
 
+connection = sqlite3.connect("drag_queen.db")
+cursor = connection.cursor()
+# cursor.execute("INSERT INTO %s %s VALUES %s" % (table, column, value))
+foreign_key_table = 'Drag_Queens'
+name = "Nymphia Wind"
+answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, name))[0]
+answer = answer
+print(answer)
 
 
 
