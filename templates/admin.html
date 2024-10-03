@@ -1,41 +1,74 @@
 {% extends "layout.html" %}
 {% block content %}
-<div>
-    <h2>TABLES</h2>
-    <!--https://stackoverflow.com/questions/25373154/how-to-iterate-through-a-list-of-dictionaries-in-jinja-template-->
-    {% for index in range(table_names|length) %}
-        <a href="/admin/{{index+1}}">
-            <button class = "filter_btn"><h2>{{table_names[index]}}</h2></button>
-        </a>
-    {% endfor %}
-</div>
-
 {% set table_name = table_names[table_id-1] %}
 {% set table_column_names = table_info[table_name][0] %}
 {% set foreign_key_column_info = table_info[table_name][1] %}
-<h2>{{table_name}}</h2>
-<form action="/admin/{{table_id}}" method="post">
-    {% for column in table_column_names %}
-        {% if foreign_key_column_info != None %}
-            {% set foreign_columns = foreign_key_column_info[1] %}
-            {% if column in foreign_columns %}
-                <label for="{{column}}"><h3>{{column}}</h3></label>
-                <input list="{{column}}" name="{{column}}">
-                <datalist id="{{column}}">
-                    {% set foreign_key_datalist = foreign_key_column_info[0][column] %}
-                    {% for option in foreign_key_datalist %}
-                        <option value="{{option}}">
-                    {% endfor %}
-                </datalist>
+
+<div class="admin_container">
+    <div class="admin_tables">
+        <div class="admin_title table_title">TABLES</div>
+        <!--https://stackoverflow.com/questions/25373154/how-to-iterate-through-a-list-of-dictionaries-in-jinja-template-->
+        {% for index in range(table_names|length) %}
+            {% if table_names[index] == table_name %}
+                <a href="/admin/{{index+1}}">
+                    <div class="admin_selected_table admin_title">
+                        <h3>{{table_names[index]}}</h3>
+                    </div>
+                </a>
             {% else %}
-                <label for="{{column}}"><h3>{{column}}</h3></label>
-                <input type="text" name="{{column}}">
+                <a href="/admin/{{index+1}}">
+                    <div class="admin_table admin_title">
+                        <h3>{{table_names[index]}}</h3>
+                    </div>
+                </a>
             {% endif %}
-        {% else %}
-            <label for="{{column}}"><h3>{{column}}</h3></label>
-            <input type="text" name="{{column}}">
-        {% endif %}
-    {% endfor %}
-    <input type="submit">
-</form>
+        {% endfor %}
+    </div>
+
+    <div class="admin_form">
+        <div class="admin_form_title"><h2>{{table_name}}</h2></div>
+        <hr class="admin_hr">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="admin_error">
+                        <h3>{{message}}</h3>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form action="/admin/{{table_id}}" method="post">
+            <div class="admin_inputs">
+            {% for column in table_column_names %}
+                {% if foreign_key_column_info != None %}
+                    {% set foreign_columns = foreign_key_column_info[1] %}
+                    {% if column in foreign_columns %}
+                    <div class="admin_input">
+                        <label for="{{column}}"><h3>{{column}}</h3></label>
+                        <input list="{{column}}" name="{{column}}">
+                        <datalist id="{{column}}">
+                            {% set foreign_key_datalist = foreign_key_column_info[0][column] %}
+                            {% for option in foreign_key_datalist %}
+                                <option value="{{option}}">
+                            {% endfor %}
+                        </datalist>
+                    </div>
+                    {% else %}
+                        <div class="admin_input">
+                            <label for="{{column}}"><h3>{{column}}</h3></label>
+                            <input type="text" name="{{column}}">
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="admin_input">
+                        <label for="{{column}}"><h3>{{column}}</h3></label>
+                        <input type="text" name="{{column}}">
+                    </div>
+                {% endif %}
+            {% endfor %}
+            </div>
+            <div class="admin_submit"><input type="submit" class="admin_submit_btn"></div>
+        </form>
+    </div>
+</div>
 {% endblock %}

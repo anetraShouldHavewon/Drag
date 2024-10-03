@@ -90,9 +90,23 @@ for table_name in table_names:
     table_columns_dict[table_name] = [table_column_names, 
                                       table_foreign_key_names]
 
-table_foreign_key_names = table_columns_dict[table_names[2]][1][1]
-table_foreign_key_tables = table_columns_dict[table_names[2]][1][2]
-print(table_foreign_key_names, table_foreign_key_tables)
+table_name = table_names[2]
+table_column_names = table_columns_dict[table_name][0]
+if table_columns_dict[table_name][1] is not None:
+    table_foreign_key_names = table_columns_dict[table_name][1][1]
+    table_foreign_key_tables = table_columns_dict[table_name][1][2]
+values = []
+for table_column in table_column_names:
+    if table_column in table_foreign_key_names:
+        index = table_foreign_key_names.index(table_column)
+        foreign_key_table = table_foreign_key_tables[index]
+        values.append("foreignkey")
+    else:
+        values.append("non-foreignkey")
+#print(table_name)
+#print(table_column_names)
+#print(values)
+
 def sql_insert(table, column, value):
     connection = sqlite3.connect("drag_queen.db")
     cursor = connection.cursor()
@@ -100,19 +114,11 @@ def sql_insert(table, column, value):
     connection.commit()
     connection.close()
 
-connection = sqlite3.connect("drag_queen.db")
-cursor = connection.cursor()
-# cursor.execute("INSERT INTO %s %s VALUES %s" % (table, column, value))
-foreign_key_table = 'Drag_Queens'
-name = "Nymphia Wind"
-answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, name))[0]
-answer = answer
-print(answer)
-
-
-
-
-
+ii = True
+while ii:
+    print("hya")
+    for i in range(1):
+        ii = False
 
 
 

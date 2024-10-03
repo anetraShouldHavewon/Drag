@@ -394,71 +394,81 @@ def login():
 @app.route("/admin/<int:id>", methods=["GET", "POST"])
 def admin(id):
     # A class which stores the name, and two functions for an sql table
-    class Table:
-        def __init__(self, name):
-            self.name = name
+    if session['login'] is True:
+        class Table:
+            def __init__(self, name):
+                self.name = name
 
-        # Get the names of the columns that don't contain any foreign keys
-        def get_column_names(self):
-            column_names_query = alt_sql(False, "PRAGMA table_info({table_name})".format(table_name=self.name))
-            column_names = []
-            for column in column_names_query:
-                if column[5] != 1:
-                    column_name = column[1]
-                    column_names.append(column_name)
-            return column_names
-        
-        # Get the names of the columns that contain any foreign keys
-        # and the names of the tables the foreign key is from
-        # and the 'name' row from the tables the foreign key is from
-        def get_foreign_keys(self):
-            foreign_key_info = alt_sql(False, "PRAGMA foreign_key_list({table_name})".format(table_name=self.name))
-            if len(foreign_key_info) != 0:
-                foreign_key_columns = alt_fetchall_info_list('''PRAGMA foreign_key_list({table_name})'''.format(table_name=self.name), 3)
-                foreign_key_tables = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 2)
-                foreign_key_table_columns = {}
-                for index, column in enumerate(foreign_key_columns):
-                    foreign_key_table = foreign_key_tables[index]
-                    foreign_key_datalist = alt_fetchall_info_list("SELECT name FROM {table_name}".format(table_name=foreign_key_table), 0)
-                    foreign_key_table_columns[column] = foreign_key_datalist
-
-                return [foreign_key_table_columns,
-                        foreign_key_columns,
-                        foreign_key_tables]
-        
-
-    # Code from https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
-    # Creating a dictionary with table names as keys and the table's column
-    # names and foreign key info as the values
-    table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'", None, 0)
-    table_names.pop(0)
-    table_columns_dict = {}
-    for table_name in table_names:
-        table = Table(table_name)
-        table_column_names = table.get_column_names()
-        table_foreign_key_names = table.get_foreign_keys()
-        table_columns_dict[table_name] = [table_column_names,
-                                          table_foreign_key_names]
-    
-    # Dealing with the data from the form by putting the data inputted into their respective
-    # columns in the database
-    if request.method == "POST":
-        table_name = table_names[id-1]
-        table_foreign_key_names = table_columns_dict[table_name][1][1]
-        table_foreign_key_tables = table_columns_dict[table_name][1][2]
-        table_column_names = table_columns_dict[table_name][0] + table_foreign_key_names     
-        values = []
-        for table_column in table_column_names:
-            answer = request.form.get(table_column)
-            if table_column in table_foreign_key_names:
-                index = table_foreign_key_names.index(table_column)
-                foreign_key_table = table_foreign_key_tables[index]
-                answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, answer))[0]
-            values.append(answer)
-        values = tuple(values)
-        table_column_names = tuple(table_column_names)
-        sql_insert(table_name, table_column_names, values)
+            # Get the names of the columns of a table
+            def get_column_names(self):
+                column_names_query = alt_sql(False, "PRAGMA table_info({table_name})".format(table_name=self.name))
+                column_names = []
+                for column in column_names_query:
+                    if column[5] != 1:
+                        column_name = column[1]
+                        column_names.append(column_name)
+                return column_names
             
+            # Get the names of the columns that contain any foreign keys
+            # and the names of the tables the foreign key is from
+            # and the 'name' row from the tables the foreign key is from
+            def get_foreign_keys(self):
+                foreign_key_info = alt_sql(False, "PRAGMA foreign_key_list({table_name})".format(table_name=self.name))
+                if len(foreign_key_info) != 0:
+                    foreign_key_columns = alt_fetchall_info_list('''PRAGMA foreign_key_list({table_name})'''.format(table_name=self.name), 3)
+                    foreign_key_tables = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 2)
+                    foreign_key_table_columns = {}
+                    for index, column in enumerate(foreign_key_columns):
+                        foreign_key_table = foreign_key_tables[index]
+                        foreign_key_datalist = alt_fetchall_info_list("SELECT name FROM {table_name}".format(table_name=foreign_key_table), 0)
+                        foreign_key_table_columns[column] = foreign_key_datalist
+
+                    return [foreign_key_table_columns,
+                            foreign_key_columns,
+                            foreign_key_tables]
+            
+
+        # Code from https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
+        # Creating a dictionary with table names as keys and the table's column
+        # names and foreign key info as the values
+        table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'", None, 0)
+        table_names.pop(0)
+        table_columns_dict = {}
+        for table_name in table_names:
+            table = Table(table_name)
+            table_column_names = table.get_column_names()
+            table_foreign_key_names = table.get_foreign_keys()
+            table_columns_dict[table_name] = [table_column_names,
+                                            table_foreign_key_names]
+        
+        # Dealing with the data from the form by putting the data inputted into their respective
+        # columns in the database
+        if request.method == "POST":
+            table_name = table_names[id-1]
+            table_column_names = table_columns_dict[table_name][0]
+            if table_columns_dict[table_name][1] is not None:
+                table_foreign_key_names = table_columns_dict[table_name][1][1]
+                table_foreign_key_tables = table_columns_dict[table_name][1][2]
+            values = []
+            insert = True
+            while insert:
+                for table_column in table_column_names:
+                    answer = request.form.get(table_column)
+                    if len(answer) == 0:
+                        flash(f"You have not entered anything into the {table_column} field.")
+                        insert = False
+                    else:
+                        if table_column in table_foreign_key_names:
+                            index = table_foreign_key_names.index(table_column)
+                            foreign_key_table = table_foreign_key_tables[index]
+                            answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, answer))[0]
+                        values.append(answer)
+            values = tuple(values)
+            table_column_names = tuple(table_column_names)
+            if insert:
+                sql_insert(table_name, table_column_names, values)
+    else:
+        return redirect("/")
     return render_template("admin.html",
                            title="Admin",
                            table_info=table_columns_dict,
