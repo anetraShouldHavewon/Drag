@@ -384,9 +384,21 @@ def login():
         correct_password = "howyoudoinggorge12"
         if username == correct_username and password == correct_password:
             session['login'] = True
-            flash("You have infiltrated my website")
-        else:
-            flash("Wrong username or password")
+            return redirect ("/admin/0")
+        elif len(username) == 0 and len(password) == 0:
+            flash("Username and password not filled out")
+        elif len(username) == 0:
+            flash("Username not filled out")
+        elif len(password) == 0:
+            flash("Password not filled out")
+        elif username != correct_username and password != correct_password:
+            flash("Wrong username and password")
+        elif username != correct_username:
+            flash("Wrong username")
+        elif password != correct_password:
+            flash("Wrong password")
+            
+        
      
     return render_template("login.html",
                            title="Login")
