@@ -56,6 +56,9 @@ a{
     text-decoration: none;
 }
 
+.bungee_shade{
+    font-family: Bungee Shade;
+}
 /*Navigation bar*/
 nav{
     background-color: black;
@@ -365,6 +368,7 @@ mark{
 .episode_container h3{
     position: relative;
 }
+
 .episode_name::after{
     content: '';
     background-color: #24ffd0;
@@ -420,6 +424,10 @@ mark{
     padding-right: 30px;
 }
 
+.episode_info h2{
+    font-family: Bungee Shade;
+}
+
 .episode_img_container{
     display: flex;
     justify-content: end;
@@ -464,6 +472,50 @@ mark{
 .episode_circle{
     height: 50px;
     width: 50px;
+}
+
+/*Grand Finale page*/
+.grand_finale_contestant_container{
+    border-radius: 30px;
+    margin-left: 30px;
+    margin-right: 30px;
+    padding-left: 20px;
+    padding-top: 10px;
+    border: solid 3px lavender;
+    margin-bottom: 20px;
+}
+
+.grand_finale_title{
+    margin-bottom: 35px;
+}
+
+.grand_finale_contestants{
+    display: grid;
+    width: 100vh;
+    grid-template-columns: 200px auto;
+    padding-bottom: 40px;
+}
+
+.grand_finale_link{
+    position: relative;
+}
+.grand_finale_link h3{
+    color: #e4ccff;
+}
+
+.grand_finale_link::after{
+    content: '';
+    position: absolute;
+    top: 1.5em;
+    left: 0;
+    width: 0;
+    height: 0.1em;
+    transition: width 0.5s;
+    background-color: #e4ccff;
+}
+
+.grand_finale_link:hover::after{
+    width: 70px;
 }
 
 /*404*/
@@ -581,10 +633,10 @@ mark{
     overflow: scroll;
 }
 
-.admin_form{
+.admin_form_container{
     position: absolute;
     left: 470px;
-    width: 80vh;
+    width: 90vh;
 }
 
 .admin_title{
@@ -592,6 +644,9 @@ mark{
     padding-left: 50px;
 }
 
+.admin_title:nth-last-child(){
+    padding-bottom: 100vh;
+}
 .table_title{
     font-size: 30px;
     font-family: Bungee Shade;
@@ -626,7 +681,7 @@ mark{
 }
 
 .admin_form_title{
-    font-size: 30px;
+    font-size: 40px;
 }
 
 .admin_hr{
@@ -651,6 +706,9 @@ mark{
 }
 
 .admin_submit_btn{
+    position: relative;
+    top: 0;
+    left: 0;
     background-color: rgba(142, 63, 211, 0.7);
     width: 70%;
     padding-top: 2%;
@@ -659,18 +717,34 @@ mark{
     color: white;
     border-radius: 20px;
     box-shadow: none;
-    transition: background-color 0.7s, box-shadow 0.5s;
+    transition: background-color 0.7s, box-shadow 0.5s, top 0.7s, left 0.7s;
 }
 
 .admin_submit_btn:hover{
+    top: -4px;
+    left: -4px;
     background-color: rgb(102, 33, 162);
     box-shadow: #e4ccff 3px 3px;
 }
 
 .admin_error{
-    background-color: #24ffd0d8;
-    font-size: 10px;
-    width: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 5%;
+    background: rgba(188, 50, 77, 0.83);
+    width: 80%;
     height: 30px;
+    border-radius: 3px;
+    margin-bottom: 1%;
+    font-size: 11px;
 }
+
+.admin_sucess{
+    background: linear-gradient(0.2turn, rgba(63, 211, 186, 0.8),rgba(142, 63, 211, 0.7)); 
+}
+
+.admin_errors{
+    margin-bottom: 5vh;
+}
+
 

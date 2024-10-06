@@ -25,50 +25,60 @@
         {% endfor %}
     </div>
 
-    <div class="admin_form">
+    <div class="admin_form_container">
         <div class="admin_form_title"><h2>{{table_name}}</h2></div>
         <hr class="admin_hr">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
+        <div class="admin_errors">
+            {% with messages = get_flashed_messages() %}
+                {% if messages and insert %}
+                    {% for message in messages %}
+                        <div class="admin_error admin_sucess">
+                            <h3>{{message}}</h3>
+                        </div>
+                    {% endfor %}
+                {% elif messages %}
+                    {% for message in messages %}
                     <div class="admin_error">
                         <h3>{{message}}</h3>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <form action="/admin/{{table_id}}" method="post">
-            <div class="admin_inputs">
-            {% for column in table_column_names %}
-                {% if foreign_key_column_info != None %}
-                    {% set foreign_columns = foreign_key_column_info[1] %}
-                    {% if column in foreign_columns %}
-                    <div class="admin_input">
-                        <label for="{{column}}"><h3>{{column}}</h3></label>
-                        <input list="{{column}}" name="{{column}}">
-                        <datalist id="{{column}}">
-                            {% set foreign_key_datalist = foreign_key_column_info[0][column] %}
-                            {% for option in foreign_key_datalist %}
-                                <option value="{{option}}">
-                            {% endfor %}
-                        </datalist>
-                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        <div class="admin_form">
+            <form action="/admin/{{table_id}}" method="post">
+                <div class="admin_inputs">
+                {% for column in table_column_names %}
+                    {% if foreign_key_column_info != None %}
+                        {% set foreign_columns = foreign_key_column_info[1] %}
+                        {% if column in foreign_columns %}
+                        <div class="admin_input">
+                            <label for="{{column}}"><h3>{{column}}</h3></label>
+                            <input list="{{column}}" name="{{column}}">
+                            <datalist id="{{column}}">
+                                {% set foreign_key_datalist = foreign_key_column_info[0][column] %}
+                                {% for option in foreign_key_datalist %}
+                                    <option value="{{option}}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        {% else %}
+                            <div class="admin_input">
+                                <label for="{{column}}"><h3>{{column}}</h3></label>
+                                <input type="text" name="{{column}}">
+                            </div>
+                        {% endif %}
                     {% else %}
                         <div class="admin_input">
                             <label for="{{column}}"><h3>{{column}}</h3></label>
                             <input type="text" name="{{column}}">
                         </div>
                     {% endif %}
-                {% else %}
-                    <div class="admin_input">
-                        <label for="{{column}}"><h3>{{column}}</h3></label>
-                        <input type="text" name="{{column}}">
-                    </div>
-                {% endif %}
-            {% endfor %}
-            </div>
-            <div class="admin_submit"><input type="submit" class="admin_submit_btn"></div>
-        </form>
+                {% endfor %}
+                </div>
+                <div class="admin_submit"><input type="submit" class="admin_submit_btn"></div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -1,4 +1,5 @@
 import sqlite3, random, os
+from werkzeug.security import generate_password_hash
 
 def sql(fetchone, query, constraint):
     '''Executes sql queries based on whether they can be executed with a '''
@@ -90,35 +91,56 @@ for table_name in table_names:
     table_columns_dict[table_name] = [table_column_names, 
                                       table_foreign_key_names]
 
-table_name = table_names[2]
+table_name = table_names[8]
 table_column_names = table_columns_dict[table_name][0]
 if table_columns_dict[table_name][1] is not None:
     table_foreign_key_names = table_columns_dict[table_name][1][1]
     table_foreign_key_tables = table_columns_dict[table_name][1][2]
-values = []
-for table_column in table_column_names:
-    if table_column in table_foreign_key_names:
-        index = table_foreign_key_names.index(table_column)
-        foreign_key_table = table_foreign_key_tables[index]
-        values.append("foreignkey")
-    else:
-        values.append("non-foreignkey")
-#print(table_name)
-#print(table_column_names)
-#print(values)
+values = ["test"]
+#for table_column in table_column_names:
+    #if table_column in table_foreign_key_names:
+        #index = table_foreign_key_names.index(table_column)
+        #foreign_key_table = table_foreign_key_tables[index]
 
 def sql_insert(table, column, value):
     connection = sqlite3.connect("drag_queen.db")
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO %s %s VALUES %s" % (table, column, value))
+    columns_string = ','.join(column)
+    placeholders = ','.join(['?'] * len(value))
+    value = tuple(value)
+    query = f"INSERT INTO {table} ({columns_string}) VALUES({placeholders})"
+    cursor.execute(query, value)
     connection.commit()
     connection.close()
 
-ii = True
-while ii:
-    print("hya")
-    for i in range(1):
-        ii = False
+id = 15
+finale_lip_sync = sql(True, '''SELECT lip_sync_song FROM 
+                              Grand_Finale_Episodes WHERE 
+                              episode_id = ?''', id)[0]
+finale_special_guest = sql(True, '''SELECT special_guest FROM 
+                        Grand_Finale_Episodes WHERE 
+                        episode_id = ?''', id)[0] 
+winner_id = sql(True, '''SELECT winner FROM Grand_Finale_Episodes WHERE episode_id = ?''', id)[0]
+winner_name = sql(True, '''SELECT name FROM Drag_Queens WHERE id = ?''', winner_id)[0]
+queen_ids = fetchall_info_list('''SELECT drag_queen_id FROM Drag_Queen_Grand_Finale WHERE episode_id = ?''', id, 0)
+queen_names = fetchall_info_list('''SELECT Drag_Queens.name FROM Drag_Queen_Grand_Finale JOIN Drag_Queens ON Drag_Queen_Grand_Finale.drag_queen_id = Drag_Queens.id WHERE episode_id = ?''', id, 0)
+queen_performances = fetchall_info_list('''SELECT performance FROM Drag_Queen_Grand_Finale WHERE episode_id = ?''', id, 0)
+listy = [id, winner_id]
+winner_performance = sql(True, '''SELECT performance FROM Drag_Queen_Grand_Finale WHERE episode_id = ? AND drag_queen_id = ?''', listy)[0]
+queen_names.remove(winner_name)
+queen_performances.remove(winner_performance)
+# print(finale_lip_sync)
+# print(finale_special_guest)
+# print(winner_id)
+# print(winner_name)
+print(queen_ids)
+print(queen_names)
+print(queen_performances)
+# print(winner_performance)
+
+#sql_insert()
+
+
 
 
 

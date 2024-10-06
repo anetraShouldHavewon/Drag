@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class = "episode_header">
+    <div class = "episode_info">
+        <h2>{{episode_name}}</h2>
+        <h3>Runway Theme: {{episode_runway_theme}}</h3>
+        <h3>Lipsync Song: {{finale_lip_sync}}</h3>
+        <h3>Special Guest: {{finale_special_guest}}</h3>
+    </div>
+    <div class = "episode_img_container">
+        <img class="episode_img" src="/static/photos/episodes/{{episode_img}}">
+    </div>
+</div>
+
+<div class="grand_finale_contestant_container">
+    <h2 class="bungee_shade grand_finale_title">THE WINNER!</h2>
+    <div class="grand_finale_contestants">
+        <div class="drag_queen_circle">
+            <img class = "drag_queen_circle" src="/static/photos/drag_queen_circle/{{winner_id}}.webp">
+        </div>
+        <div>
+            <h3>{{winner_name}}</h3>
+            <h3>Performance: {{winner_performance}}</h3> 
+            <a class="grand_finale_link" href="/drag_queen_info/{{winner_id}}"><h3>More...</h3></a>
+        </div>
+    </div>
+</div>
+
+<div class="grand_finale_contestant_container">
+    <h2 class="bungee_shade grand_finale_title">THE FINALISTS</h2>
+    {% for index in range(queen_ids|length) %}
+        <div class="grand_finale_contestants">
+            <div class="drag_queen_circle">
+                <img class = "drag_queen_circle" src="/static/photos/drag_queen_circle/{{queen_ids[index]}}.webp">
+            </div>
+            <div>
+                <h3>{{queen_names[index]}}</h3>
+                <h3>Performance: {{queen_performances[index]}}</h3> 
+                <a class="grand_finale_link" href="/drag_queen_info/{{queen_ids[index]}}"><h3>More...</h3></a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
