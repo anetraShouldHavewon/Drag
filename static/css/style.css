@@ -43,7 +43,7 @@ h1{
 }
 
 h2{
-    font-family: Shrikhand;
+    font-family: Bungee Shade;
     color: azure;
 }
 
@@ -85,6 +85,7 @@ nav{
     color: #9b57ef;
     position: relative;
     font-size: 20px;
+    font-family: Shrikhand;
 }
 
 .navflex a::after{
@@ -292,6 +293,10 @@ mark{
     transition: border 0.5s, background-color 0.5s;
 }
 
+.filter_btn h2{
+    font-family: Be Vietnam Pro;
+}
+
 .filter_btn:hover{
     border: #9b57ef 2px solid;
     background-color: #925bf700;
@@ -412,12 +417,42 @@ mark{
 }
 
 /*Episode Information*/
+.episode_padding{
+    margin-top: 50px;
+    margin-left: 50px;
+    margin-bottom: 0px;
+}
+
+.episode_back_link{
+    position: relative;
+}
+
+.episode_back_link h3{
+    color: #e4ccff;
+}
+
+.episode_back_link::after{
+    content: '';
+    position: absolute;
+    top: 1.5em;
+    left: 0;
+    width: 0;
+    height: 0.1em;
+    transition: width 0.5s;
+    background-color: #e4ccff;
+}
+
+.episode_back_link:hover::after{
+    width: 220px;
+}
+
 .episode_header{
     display: grid;
     grid-template-columns: 600px 700px;
     clear: both;
     height: fit-content;
     padding: 50px;
+    padding-top: 10px;
 }
 
 .episode_info{

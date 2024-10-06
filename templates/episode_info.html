@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="episode_padding">
+    <a href="/season_info/{{season_id}}" class="episode_back_link">
+        <h3>&lt; Back to {{season_name}}</h3>
+    </a>
+</div>
+
 <div class = "episode_header">
     <div class = "episode_info">
         <h2>{{episode_name}}</h2>
@@ -15,6 +21,7 @@
 
 <div class = "episode_queen_rankings_container">
     <h2>RANKINGS</h2>
+    <hr>
     {% if episode_challenge_type == "Lalaparuza" %}
         <img src="/static/photos/episode_tables/{{id}}.png">
     {% else %}

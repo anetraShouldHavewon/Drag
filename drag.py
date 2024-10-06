@@ -68,10 +68,6 @@ def sql_insert(table, column, value):
     connection.commit()
     connection.close()
 
-
-# Getting the maximum ids from the drag_queens table
-max_drag_queen_id = sql(True, "SELECT MAX(id) FROM Drag_Queens", None)[0]
-
 @app.route("/")
 def home():
     # Getting the information latest season across all the franchises
@@ -148,7 +144,9 @@ def season_info(id):
     # Leading users to the error 404 page when the id is larger or smaller than a certain amount
     max_season_id = sql(True, "SELECT MAX(id) FROM Seasons", None)[0]
     if id > max_season_id or id < 1:
-        abort(404)        
+        abort(404)
+
+    # Getting information         
     season_name = sql(True, "SELECT name FROM Seasons WHERE id = ?", id)[0].upper()
     season_queens_ids = fetchall_info_list('''SELECT 
                                            Drag_Queen_Season.drag_queen_id 
@@ -162,7 +160,7 @@ def season_info(id):
     season_episodes_ids = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 0)
     season_episodes_names = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 1)
     season_episodes_imgs = fetchall_info_list("SELECT img_link FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 0)
-    
+
     return render_template("season_info.html", 
                            season_id=id,
                            season_name=season_name,
@@ -338,7 +336,9 @@ def episode_info(id):
     episode_challenge_description = episode_info[1]
     episode_runway_theme = episode_info[2]
     episode_img = episode_info[3]
-    episode_challenge_type = sql(True, "SELECT Maxi_Challenge_Type.name FROM Episodes JOIN Maxi_Challenge_Type ON Episodes.maxi_challenge_type_id = Maxi_Challenge_Type.id WHERE Episodes.id = ?", id)[0]
+    episode_challenge_type = sql(True, '''SELECT Maxi_Challenge_Type.name FROM Episodes JOIN Maxi_Challenge_Type ON Episodes.maxi_challenge_type_id = Maxi_Challenge_Type.id WHERE Episodes.id = ?''', id)[0]
+    season_id = sql(True, '''SELECT season_id FROM Episodes WHERE id = ?''', id)[0]
+    season_name = sql(True, '''SELECT name FROM Seasons WHERE id = ?''', season_id)[0]
     
     # If the episode is a finale episode, get information about the winners of
     # the season and the queens that made it to the last episode        
@@ -374,6 +374,8 @@ def episode_info(id):
                                queen_names=queen_names,
                                queen_performances=queen_performances,
                                winner_performance=winner_performance,
+                               season_id=season_id,
+                               season_name=season_name,
                                title="Episode Information")
     
     else:
@@ -415,12 +417,14 @@ def episode_info(id):
         
     return render_template("episode_info.html",
                            id=id,
+                           season_id=season_id,
                            queen_rankings=queen_rankings,
                            episode_name=episode_name,
                            episode_img=episode_img,
                            episode_runway_theme=episode_runway_theme,
                            episode_challenge_description=episode_challenge_description, 
                            episode_challenge_type=episode_challenge_type, 
+                           season_name=season_name,
                            title="Episode Information")
 
 
@@ -448,9 +452,7 @@ def login():
             flash("Wrong username")
         elif password != correct_password:
             flash("Wrong password")
-            
-        
-     
+             
     return render_template("login.html",
                            title="Login")
 
