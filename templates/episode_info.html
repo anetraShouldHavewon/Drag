@@ -14,7 +14,7 @@
         <p>{{episod_challenge_description}}</p>
     </div>
     <div class = "episode_img_container">
-        <img class="episode_img" src="/static/photos/episodes/{{episode_img}}">
+        <img class="episode_img" src="/static/photos/episodes/{{episode_img}}" alt-="img not found">
     </div>
 </div>
 
@@ -58,7 +58,7 @@
                             <div class = "drag_queen_circle episode_circle">
                                 <img class = "drag_queen_circle episode_circle" src = "/static/photos/drag_queen_circle/{{queen_dict['drag_queen_ids'][index]}}.webp">
                             </div>
-                            <h3>{{queen_dict['drag_queen_names'][index]}}</h3>
+                            <h3 class="episode_drag_queen_name">{{queen_dict['drag_queen_names'][index]}}</h3>
                         </div>
                     </a>
                 {% endfor %}   
