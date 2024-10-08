@@ -5,8 +5,10 @@
     <div class = "home_franchises_lineup">
         {% for index in range(latest_season_names|length) %} <!--change to latest-->
         <a href = "/season_info/{{latest_season_ids[index]}}">
-            <div class = "home_franchise_poster">
-                <img src = "/static/photos/seasons/{{latest_season_ids[index]}}.webp">
+            <div class = "home_franchise_poster_lineup">
+                <div class="home_franchise_poster">
+                    <img src = "/static/photos/seasons/{{latest_season_ids[index]}}.webp" alt="img not found">
+                </div>
                 <h3>{{latest_season_names[index]}}</h3>
             </div>
         </a>
@@ -22,8 +24,10 @@
     <div class = "home_franchises_lineup">
         {% for index in range(season_names|length) %} <!--change to latest-->
         <a href = "/season_info/{{season_ids[index]}}">
-            <div class = "home_franchise_poster">
-                <img src = "/static/photos/seasons/{{season_ids[index]}}.webp">
+            <div class = "home_franchise_poster_lineup">
+                <div class="home_franchise_poster">
+                    <img src = "/static/photos/seasons/{{season_ids[index]}}.webp" alt="img not found">
+                </div>
                 <h3>{{season_names[index]}}</h3>
             </div>
         </a>

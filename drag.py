@@ -141,12 +141,13 @@ def seasons():
 
 @app.route("/season_info/<int:id>")
 def season_info(id):
-    # Leading users to the error 404 page when the id is larger or smaller than a certain amount
-    max_season_id = sql(True, "SELECT MAX(id) FROM Seasons", None)[0]
-    if id > max_season_id or id < 1:
+    # Leading users to the error 404 page when the id is not in a list
+    # of existing season_ids
+    season_ids = fetchall_info_list("SELECT id FROM Seasons", None, 0)
+    if id not in season_ids:
         abort(404)
 
-    # Getting information         
+    # Getting information about the queens and episodes of a seaon        
     season_name = sql(True, "SELECT name FROM Seasons WHERE id = ?", id)[0].upper()
     season_queens_ids = fetchall_info_list('''SELECT 
                                            Drag_Queen_Season.drag_queen_id 
@@ -299,10 +300,12 @@ def drag_queen_info(id):
     # Getting the names, specialty skills, city of origin and age of 
     # a particular drag queen
     drag_queen_info = sql(True, "SELECT * FROM Drag_Queens WHERE id = ?", id)
+    
     # Leading users to the error 404 page when the query gives 
     # None result
     if drag_queen_info is None:
         abort(404)
+
     name = drag_queen_info[1]
     specialty_skills = drag_queen_info[2]
     description = drag_queen_info[3]
@@ -501,6 +504,7 @@ def admin(id):
         # the database, redirect to the 404 page
         if id > len(table_names)-1 or id < 0:
             abort(404)
+        
         table_names.pop(0)
         table_columns_dict = {}
         for table_name in table_names:

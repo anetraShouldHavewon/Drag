@@ -10,9 +10,11 @@
         <p>{{description}}</p>
     </div>
     <div class = "drag_queen_image_container">
-        <div class = "drag_queen_image">
-            <img class = "drag_queen_image" src = "/static/photos/drag_queen_profile/{{id}}.webp">
-            <h2>{{name}}</h2>
+        <div class="drag_queen_card">
+            <div class = "drag_queen_image">
+                <img class="drag_queen_img" src = "/static/photos/drag_queen_profile/{{id}}.webp" alt="queen_img_not_found">
+            </div>
+                <h2>{{name}}</h2>
         </div>
     </div>
 {% endblock %}

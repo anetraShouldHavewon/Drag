@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class = "season_info_hero_image_container">
-    <img class = "season_info_hero_image" src = "/static/photos/season_info_pages/{{season_id}}.webp">
+    <img class = "season_info_hero_image" src = "/static/photos/season_info_pages/{{season_id}}.webp" alt="img not found">
 </div>
 
 <div class="episode_padding">
@@ -35,7 +35,9 @@
         {% for index in range(0, season_episodes_ids|length) %}
         <a href = "/episode_info/{{season_episodes_ids[index]}}">
             <div class = "episode_container">
-                <img class = "episode" src = "/static/photos/episodes/{{season_episodes_imgs[index]}}">
+                <div class="seasons_episodes_img">
+                    <img class = "episode" src = "/static/photos/episodes/{{season_episodes_imgs[index]}}" alt="img not found">
+                </div>
                 <div class = "episode_filter"></div>
                 <h3 class = "episode_name">{{season_episodes_names[index]}}</h3>
             </div>
