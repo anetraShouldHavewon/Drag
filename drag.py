@@ -42,6 +42,7 @@ def alt_sql(fetchone, query):
     return result
 
 def alt_fetchall_info_list(fetch_query, column_index):
+    # Converting the output of fetchall queries into a list
     fetchall_output = alt_sql(False, fetch_query)
     return_list = []
     for item in fetchall_output:
@@ -116,6 +117,8 @@ def seasons():
                                     release_year = (SELECT MAX(release_year)
                                     FROM Seasons)''', None, 0)
     
+    # Getting the ids and names of all the seasons and grouping them by the
+    # franchises they are in
     franchise_dict = {}
 
     franchise_names = fetchall_info_list("SELECT name FROM Franchises",
@@ -147,8 +150,10 @@ def season_info(id):
     if id not in season_ids:
         abort(404)
 
-    # Getting information about the queens and episodes of a seaon        
+    # Getting information about the names, ids and images of 
+    # queens and episodes of a season        
     season_name = sql(True, "SELECT name FROM Seasons WHERE id = ?", id)[0].upper()
+    season_credit = sql(True, '''SELECT info_source FROM Seasons WHERE id = ?''', id)[0]
     season_queens_ids = fetchall_info_list('''SELECT 
                                            Drag_Queen_Season.drag_queen_id 
                                            FROM Drag_Queen_Season JOIN 
@@ -164,6 +169,7 @@ def season_info(id):
 
     return render_template("season_info.html", 
                            season_id=id,
+                           season_credit=season_credit,
                            season_name=season_name,
                            season_queens_ids=season_queens_ids,
                            season_queens_name=season_queens_name,
@@ -181,7 +187,7 @@ def drag_queens(id):
         abort(404)
 
     def drag_queen_filter(constraint, filter):
-        # Getting the ids and names of drag queens from a specific season
+        # Getting the ids and names of drag queens ordered by season
         if filter == 1:
             drag_queens_info = sql(False, '''SELECT 
                                 Drag_Queen_Season.drag_queen_id,
@@ -191,12 +197,12 @@ def drag_queens(id):
                                 Drag_Queens.id WHERE 
                                 Drag_Queen_Season.season_id = ?''',
                                 constraint)
-            
+        # Getting the ids and names of drag queens ordered by city
         if filter == 2:
             drag_queens_info = sql(False, '''SELECT id, name FROM 
                                    Drag_Queens WHERE city = ?''',
                                    constraint)
-        
+        # Getting the ids and names of drag queens ordered by age
         if filter == 3:
             drag_queens_info = sql(False, '''SELECT id, name FROM 
                                       Drag_Queens WHERE age 
@@ -312,6 +318,7 @@ def drag_queen_info(id):
     city = drag_queen_info[4]
     age = drag_queen_info[5]
     iconic_quote = drag_queen_info[7]
+    img_credit= drag_queen_info[6]
 
     return render_template("drag_queen_info.html",
                            id=id,
@@ -321,13 +328,15 @@ def drag_queen_info(id):
                            drag_queen=drag_queen_info,
                            iconic_quote=iconic_quote,
                            description=description,
+                           img_credit=img_credit,
                            title="Drag Queen Information")
 
 
 @app.route("/episode_info/<int:id>")
 def episode_info(id): 
     episode_info = sql(True, '''SELECT name, challenge_description, 
-                       runway_theme, img_link FROM Episodes WHERE 
+                       runway_theme, img_link, img_source 
+                       FROM Episodes WHERE 
                        id = ?''', id)
     
     # Redirect to 404 page if the previous query gives an empty result
@@ -339,6 +348,7 @@ def episode_info(id):
     episode_challenge_description = episode_info[1]
     episode_runway_theme = episode_info[2]
     episode_img = episode_info[3]
+    episode_credit = episode_info[4]
     episode_challenge_type = sql(True, '''SELECT Maxi_Challenge_Type.name FROM Episodes JOIN Maxi_Challenge_Type ON Episodes.maxi_challenge_type_id = Maxi_Challenge_Type.id WHERE Episodes.id = ?''', id)[0]
     season_id = sql(True, '''SELECT season_id FROM Episodes WHERE id = ?''', id)[0]
     season_name = sql(True, '''SELECT name FROM Seasons WHERE id = ?''', season_id)[0]
@@ -365,6 +375,7 @@ def episode_info(id):
 
         return render_template("grand_episode_info.html", 
                                episode_name=episode_name,
+                               episode_credit=episode_credit,
                                episode_img=episode_img,
                                episode_runway_theme=episode_runway_theme,
                                episode_challenge_description=episode_challenge_description, 
@@ -423,6 +434,7 @@ def episode_info(id):
                            season_id=season_id,
                            queen_rankings=queen_rankings,
                            episode_name=episode_name,
+                           episode_credit=episode_credit,
                            episode_img=episode_img,
                            episode_runway_theme=episode_runway_theme,
                            episode_challenge_description=episode_challenge_description, 
@@ -434,21 +446,27 @@ def episode_info(id):
 # Code for the login and logout route courtesy of Sir Steven Rodkiss
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # if the user enters information into the form in login.html
+    # getting the username and password from the 
+    # form in login.html
     if request.method == "POST":
         username = request.form.get('user') # using .get allows you to get stuff using the name
         password = request.form.get('pass')
         correct_username = "anetraShouldHavewon"
         correct_password = "howyoudoinggorge12"
+        
+        # Logging the user in if the username and password are correct
         if username == correct_username and password == correct_password:
             session['login'] = True
             return redirect ("/admin/0")
+        # The error messages that will flash for various scenarios
+        # Scenarios where the fields are not filled out
         elif len(username) == 0 and len(password) == 0:
             flash("Username and password not filled out")
         elif len(username) == 0:
             flash("Username not filled out")
         elif len(password) == 0:
             flash("Password not filled out")
+        # Scenarios where fields are filled out but incorrect
         elif username != correct_username and password != correct_password:
             flash("Wrong username and password")
         elif username != correct_username:
@@ -512,23 +530,31 @@ def admin(id):
             table_column_names = table.get_column_names()
             table_foreign_key_names = table.get_foreign_keys()
             table_columns_dict[table_name] = [table_column_names,
-                                            table_foreign_key_names]
+                                              table_foreign_key_names]
         
-        # Dealing with the data from the form by putting the data inputted into their respective
-        # columns in the database
+        # Dealing with the data from the form by putting the data inputted 
+        # into their respective columns in the database
         insert = True
         if request.method == "POST":
+            # Getting the table name and the column of the tables in 
+            # preparation for data to be inserted into the database
             table_name = table_names[id-1]
             table_column_names = table_columns_dict[table_name][0]
             if table_columns_dict[table_name][1] is not None:
                 table_foreign_key_names = table_columns_dict[table_name][1][1]
                 table_foreign_key_tables = table_columns_dict[table_name][1][2]
+
             values = []
+            # For every column in the table, get the information inputted from
+            # the form. If the field is not filled out, flash an error message.
+            # Else, add the information from the form into the respective
+            # column from into the table in the database
             while insert and len(values) < len(table_column_names):
                 for table_column in table_column_names:
                     answer = request.form.get(table_column)
                     if len(answer) == 0:
-                        flash(f"You have not entered anything into the {table_column} field.")
+                        flash(f'''You have not entered anything into 
+                              the {table_column} field.''')
                         insert = False
                     else:
                         if table_column in table_foreign_key_names:
@@ -551,6 +577,8 @@ def admin(id):
         
 @app.route("/logout")
 def logout():
+    # if the login button is pressed, end the session and redirect to
+    # the home page
     session['login'] = False
     return redirect("/")
 

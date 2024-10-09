@@ -59,6 +59,7 @@ a{
 .bungee_shade{
     font-family: Bungee Shade;
 }
+
 /*Navigation bar*/
 nav{
     background-color: #5a2f88;
@@ -935,4 +936,27 @@ mark{
     margin-bottom: 5vh;
 }
 
+/*Footer*/
+footer{
+    margin-top: -20px;
+    padding-top: 5px;
+    padding-left: 60px;
+    background-color: #675876;
+    height: 20%; 
+}
 
+.footer_h2{
+    color: white;
+}
+
+.footer_credit{
+    color: #9b57ef;
+}
+
+.footer_credit:link{
+    text-decoration: underline;
+}
+
+.footer_credit:hover{
+    color: #9042ee;
+}

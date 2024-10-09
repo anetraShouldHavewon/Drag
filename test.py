@@ -129,17 +129,11 @@ listy = [id, winner_id]
 winner_performance = sql(True, '''SELECT performance FROM Drag_Queen_Grand_Finale WHERE episode_id = ? AND drag_queen_id = ?''', listy)[0]
 queen_names.remove(winner_name)
 queen_performances.remove(winner_performance)
-# print(finale_lip_sync)
-# print(finale_special_guest)
-# print(winner_id)
-# print(winner_name)
-print(queen_ids)
-print(queen_names)
-print(queen_performances)
-# print(winner_performance)
 
-#sql_insert()
+drag = 'drag'
 
+if 'drag' in drag:
+    print("yay")
 
 
 

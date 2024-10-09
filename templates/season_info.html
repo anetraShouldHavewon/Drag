@@ -49,3 +49,13 @@
     
 </div>
 {% endblock %}
+
+{% block footer %}
+<h3>Image taken from:&nbsp;
+    {% if episode_credit == None %}
+        Credit not found
+    {% else %}
+        <a class="footer_credit" href="{{season_credit}}">{{season_credit}}</a>
+    {% endif %}
+</h3>
+{% endblock %}
