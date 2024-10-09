@@ -19,8 +19,8 @@
     </div>
 {% endblock %}
 {% block footer %}
-<h3>Image taken from:&nbsp;
-    {% if episode_credit == None %}
+<h3>Drag queen image taken from:&nbsp;
+    {% if img_credit == None or img_credit == ""%}
         Credit not found
     {% else %}
         <a class="footer_credit" href="{{img_credit}}">{{img_credit}}</a>

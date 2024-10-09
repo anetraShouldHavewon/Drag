@@ -130,10 +130,8 @@ winner_performance = sql(True, '''SELECT performance FROM Drag_Queen_Grand_Final
 queen_names.remove(winner_name)
 queen_performances.remove(winner_performance)
 
-drag = 'drag'
-
-if 'drag' in drag:
-    print("yay")
+season_ids = fetchall_info_list("SELECT id FROM Seasons", None, 0)
+print(season_ids)
 
 
 

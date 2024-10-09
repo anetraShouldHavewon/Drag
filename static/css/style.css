@@ -949,6 +949,10 @@ footer{
     color: white;
 }
 
+.footer_h2_alt{
+    color: white;
+    padding-left: 370px;
+}
 .footer_credit{
     color: #9b57ef;
 }

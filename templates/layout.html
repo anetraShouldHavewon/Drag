@@ -7,6 +7,10 @@
     <nav>{% include "nav.html" %}</nav>
     <main>{% block content %} {% endblock %}</main>
     <footer>{% block footer %}{% endblock %}
-        <h2 class="footer_h2">&copy; 2024 tram dang</h2>
+        {% if title == "Admin" %}
+            <h2 class="footer_h2_alt">&copy; 2024 tram dang</h2>
+        {% else %}
+            <h2 class="footer_h2">&copy; 2024 tram dang</h2>    
+        {% endif %}
     </footer>
 </body>
