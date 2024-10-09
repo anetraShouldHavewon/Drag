@@ -61,10 +61,10 @@ a{
 }
 /*Navigation bar*/
 nav{
-    background-color: black;
+    background-color: #5a2f88;
     width: 100vw;
-    height: 64px;
-    padding-top: 8px;
+    height: 50px;
+    padding-top: 20px;
     position: fixed;
     z-index: 1;
     clear:both;
@@ -82,7 +82,7 @@ nav{
 }
 
 .navflex a{
-    color: #9b57ef;
+    color: #e4ccff;
     position: relative;
     font-size: 20px;
     font-family: Shrikhand;
@@ -103,11 +103,52 @@ nav{
     width: 100%;
 }
 
-.loginbutton{
+.nav_right_logged_in{
     display: flex;
     justify-content: end;
-    font-family: Shrikhand;
+    margin-left: 500px;
+    gap: 100px;
+}
+
+.nav_right{
+    display: flex;
+    justify-content: end;
     padding-right: 40px;
+    gap: 100px;
+}
+
+.nav_admin a{
+    font-family: Shrikhand;
+    font-size: 20px;
+    color: #e4ccff;
+}
+
+.loginbtn{
+    position: relative;
+    right: 10px;
+    bottom: 10px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-right: 20px;
+    padding-left: 20px;
+    background: #e4ccff;
+    border-radius: 10px;
+    transition: background 1s;
+}
+
+.loginbtn a{
+    font-family: Shrikhand;
+    color: rgba(142, 63, 211, 0.7);
+    font-size: 20px;
+    transition: color 1s;
+}
+
+.loginbtn:hover{
+    background: #bb88f5;
+}
+
+.loginbtn:hover a{
+    color: rgb(228, 202, 247);
 }
 
 .navgridalt{
@@ -649,7 +690,12 @@ mark{
 .error_buttons{
     display: flex;
     justify-content: center;
+    gap: 100px;
     height: 20vh;
+}
+
+.error_button{
+    background-color: #e4ccff;
 }
 
 .error_text{
