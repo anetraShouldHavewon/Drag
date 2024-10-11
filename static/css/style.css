@@ -568,13 +568,12 @@ mark{
 }
 
 .episode_img_container{
-    display: flex;
-    justify-content: end;
-
+    width: 500px;
+    height: 300px;
+    background-color: #e4ccff;
 }
 
 .episode_img{
-    background-color: #e4ccff;
     width: 500px;
     height: 300px;
     object-fit: cover;

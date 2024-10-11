@@ -231,7 +231,7 @@ def drag_queens(id):
         recentdrag_queen_names = drag_queen_filter(recent_season_id, 1)[1]
 
         # Getting the names of famous contestants to come out of drag race
-        famous_queen_ids = [15, 16, 19, 20, 22]
+        famous_queen_ids = [15, 16, 57, 41, 56]
         famous_queen_names = []
         for queen_id in famous_queen_ids:
             queen_name = sql(True, '''SELECT name FROM Drag_Queens 
@@ -362,7 +362,8 @@ def episode_info(id):
         finale_special_guest = sql(True, '''SELECT special_guest FROM 
                               Grand_Finale_Episodes WHERE 
                               episode_id = ?''', id)[0] 
-        winner_id = sql(True, '''SELECT winner FROM Grand_Finale_Episodes WHERE episode_id = ?''', id)[0]
+        winner_id = sql(True, '''SELECT winner FROM Grand_Finale_Episodes 
+                        WHERE episode_id = ?''', id)[0]
         winner_name = sql(True, '''SELECT name FROM Drag_Queens WHERE id = ?''', winner_id)[0]
         input_list = [id, winner_id]
         winner_performance = sql(True, '''SELECT performance FROM Drag_Queen_Grand_Finale WHERE episode_id = ? AND drag_queen_id = ?''', input_list)[0]
@@ -518,12 +519,12 @@ def admin(id):
         # Creating a dictionary with table names as keys and the table's column
         # names and foreign key info as the values
         table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'", None, 0)
+        table_names.pop(0)
         # If the id is numeric, if it is larger than the amount of tables in
         # the database, redirect to the 404 page
-        if id > len(table_names)-1 or id < 0:
+        if id > len(table_names) or id < 1:
             abort(404)
         
-        table_names.pop(0)
         table_columns_dict = {}
         for table_name in table_names:
             table = Table(table_name)

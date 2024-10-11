@@ -113,7 +113,7 @@ def sql_insert(table, column, value):
     connection.commit()
     connection.close()
 
-id = 15
+id = 28
 finale_lip_sync = sql(True, '''SELECT lip_sync_song FROM 
                               Grand_Finale_Episodes WHERE 
                               episode_id = ?''', id)[0]
@@ -127,11 +127,18 @@ queen_names = fetchall_info_list('''SELECT Drag_Queens.name FROM Drag_Queen_Gran
 queen_performances = fetchall_info_list('''SELECT performance FROM Drag_Queen_Grand_Finale WHERE episode_id = ?''', id, 0)
 listy = [id, winner_id]
 winner_performance = sql(True, '''SELECT performance FROM Drag_Queen_Grand_Finale WHERE episode_id = ? AND drag_queen_id = ?''', listy)[0]
+queen_ids.remove(winner_id)
 queen_names.remove(winner_name)
 queen_performances.remove(winner_performance)
 
-season_ids = fetchall_info_list("SELECT id FROM Seasons", None, 0)
-print(season_ids)
+print(finale_lip_sync)
+print(finale_special_guest)
+print(winner_id)
+print(winner_name)
+print(queen_ids)
+print(queen_names)
+print(queen_performances)
+print(winner_performance)
 
 
 
