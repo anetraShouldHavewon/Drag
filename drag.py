@@ -1,5 +1,6 @@
 '''My Project'''
-from flask import Flask, render_template, abort, request, session, redirect, flash
+from flask import Flask, render_template, abort, request, session, redirect
+from flask import flash
 import sqlite3, random
 
 app = Flask(__name__)
@@ -561,7 +562,13 @@ def admin(id):
                         if table_column in table_foreign_key_names:
                             index = table_foreign_key_names.index(table_column)
                             foreign_key_table = table_foreign_key_tables[index]
-                            answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, answer))[0]
+                            foreign_key_datalist = table_columns_dict[table_name][1][0][table_column]
+                            if answer not in foreign_key_datalist:
+                                flash(f'''Input is not available as an option 
+                                      in the {table_column} field''')
+                                insert = False
+                            else:
+                                answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, answer))[0]
                     values.append(answer)
             table_column_names = tuple(table_column_names)
             if insert:
