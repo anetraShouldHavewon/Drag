@@ -313,13 +313,15 @@ nav{
     display: grid;
     grid-template-columns: 700px 300px;
     height: 100%;
-    margin-left: 40px;
+    margin-left: 10vw;
     margin-right: 40px;
-    padding-top: 20px;
+    margin-top: 10vh;
 }
-mark{
-    color: aqua;
+
+.drag_queen_info{
+    padding-top: 0vh;
 }
+
 .drag_queen_quote h2{
     color: white;
     font-family: Shrikhand;
@@ -331,7 +333,7 @@ mark{
     padding-top: 30px;
     width: 350px;
     height: 510px;
-    margin-left: 40px;
+    margin-left: 10vh;
     border-radius: 10%;
     background: linear-gradient(0.2turn, rgba(142, 63, 211, 0.7), rgba(211, 63, 196, 0.8))
 }
