@@ -1,12 +1,16 @@
 '''My Project'''
 from flask import Flask, render_template, abort, request, session, redirect
 from flask import flash
-import sqlite3, random
+import sqlite3
+import random
 
 app = Flask(__name__)
-# The secret key is there so that the website can successfully encrypt stuff inside
+
+# The secret key is there so that the website can successfully encrypt stuff
+# inside
 # the sessions dictionary
-app.config['SECRET_KEY'] = "Howdahailyougonnalovesomebodyelse" 
+app.config['SECRET_KEY'] = "Howdahailyougonnalovesomebodyelse"
+
 
 def sql(fetchone, query, constraint):
     '''Executes sql queries based on whether they can be executed with a '''
@@ -22,7 +26,7 @@ def sql(fetchone, query, constraint):
     elif type(constraint) is list:
         if fetchone is True:
             result = cursor.execute(query, (constraint)).fetchone()
-        if fetchone is False: # if the query needs a fetchall
+        if fetchone is False:  # if the query needs a fetchall
             result = cursor.execute(query, (constraint)).fetchall()
     else:
         if fetchone is True:
@@ -31,6 +35,7 @@ def sql(fetchone, query, constraint):
             result = cursor.execute(query, (constraint,)).fetchall()
 
     return result
+
 
 def alt_sql(fetchone, query):
     connection = sqlite3.connect("drag_queen.db")
@@ -42,6 +47,7 @@ def alt_sql(fetchone, query):
 
     return result
 
+
 def alt_fetchall_info_list(fetch_query, column_index):
     # Converting the output of fetchall queries into a list
     fetchall_output = alt_sql(False, fetch_query)
@@ -50,6 +56,7 @@ def alt_fetchall_info_list(fetch_query, column_index):
         return_list.append(item[column_index])
     return return_list
 
+
 def fetchall_info_list(fetch_query, query_condition, column_index):
     '''This function puts all the output from a fetchall query into a list'''
     fetchall_output = sql(False, fetch_query, query_condition)
@@ -57,6 +64,7 @@ def fetchall_info_list(fetch_query, query_condition, column_index):
     for item in fetchall_output:
         return_list.append(item[column_index])
     return return_list
+
 
 def sql_insert(table, column, value):
     '''This function carries out all the insert queries'''
@@ -70,22 +78,24 @@ def sql_insert(table, column, value):
     connection.commit()
     connection.close()
 
+
 @app.route("/")
 def home():
     # Getting the information latest season across all the franchises
     # in Drag Race
     franchise_ids = fetchall_info_list("SELECT id FROM Franchises", None, 0)
-    franchise_names = fetchall_info_list("SELECT name FROM Franchises", None, 0)
+    franchise_names = fetchall_info_list("SELECT name FROM Franchises", None,
+                                         0)
     franchise_season_ids = []
     for id in franchise_ids:
-        franchise_season_id = sql(True,'''SELECT id, MAX(release_year) 
-                               FROM Seasons WHERE franchise_id = ?''',id)[0]
+        franchise_season_id = sql(True, '''SELECT id, MAX(release_year)
+                               FROM Seasons WHERE franchise_id = ?''', id)[0]
         franchise_season_ids.append(franchise_season_id)
-    
     # Randomly drawing out the id and names of five drag queens
     drag_queen_names = ["Angeria Paris VanMicheals"]
     drag_queen_ids = [15]
-    drag_queen_database_ids = fetchall_info_list("SELECT id FROM Drag_Queens", None, 0)
+    drag_queen_database_ids = fetchall_info_list("SELECT id FROM Drag_Queens",
+                                                 None, 0)
     for id in range(9):
         while True:
             # This loop is here to prevent multiple of the same
@@ -93,11 +103,10 @@ def home():
             random_id = random.choice(drag_queen_database_ids)
             if random_id not in drag_queen_ids:
                 break
-        drag_name = sql(True, '''SELECT name FROM 
+        drag_name = sql(True, '''SELECT name FROM
                         Drag_Queens WHERE id = ?''', random_id)[0]
         drag_queen_names.append(drag_name)
         drag_queen_ids.append(random_id)
-
 
     return render_template("home.html",
                            drag_names=drag_queen_names,
@@ -117,7 +126,6 @@ def seasons():
     latest_season_names = fetchall_info_list('''SELECT name FROM Seasons WHERE
                                     release_year = (SELECT MAX(release_year)
                                     FROM Seasons)''', None, 0)
-    
     # Getting the ids and names of all the seasons and grouping them by the
     # franchises they are in
     franchise_dict = {}
@@ -125,15 +133,14 @@ def seasons():
     franchise_names = fetchall_info_list("SELECT name FROM Franchises",
                                          None, 0)
     franchise_ids = fetchall_info_list("SELECT id FROM Franchises",
-                                         None, 0)
+                                       None, 0)
     for index, franchise_id in enumerate(franchise_ids):
         season_ids = fetchall_info_list('''SELECT id FROM Seasons WHERE
                                       franchise_id = ?''', franchise_id, 0)
         season_names = fetchall_info_list('''SELECT name FROM Seasons WHERE
                                       franchise_id = ?''', franchise_id, 0)
         franchise_dict[franchise_names[index]] = [season_ids, season_names]
-        
-        
+
     return render_template("seasons.html",
                            latest_season_ids=latest_season_ids,
                            latest_season_names=latest_season_names,
@@ -151,24 +158,39 @@ def season_info(id):
     if id not in season_ids:
         abort(404)
 
-    # Getting information about the names, ids and images of 
-    # queens and episodes of a season        
-    season_name = sql(True, "SELECT name FROM Seasons WHERE id = ?", id)[0].upper()
-    season_credit = sql(True, '''SELECT info_source FROM Seasons WHERE id = ?''', id)[0]
-    season_queens_ids = fetchall_info_list('''SELECT 
-                                           Drag_Queen_Season.drag_queen_id 
-                                           FROM Drag_Queen_Season JOIN 
-                                           Drag_Queens ON 
-                                           Drag_Queen_Season.drag_queen_id = 
-                                           Drag_Queens.id WHERE 
-                                           Drag_Queen_Season.season_id = ?''', 
+    # Getting information about the names, ids and images of
+    # queens and episodes of a season
+    season_name = sql(True, '''SELECT name FROM
+                      Seasons WHERE id = ?''', id)[0].upper()
+    season_credit = sql(True, '''SELECT info_source FROM
+                        Seasons WHERE id = ?''', id)[0]
+    season_queens_ids = fetchall_info_list('''SELECT
+                                           Drag_Queen_Season.drag_queen_id
+                                           FROM Drag_Queen_Season JOIN
+                                           Drag_Queens ON
+                                           Drag_Queen_Season.drag_queen_id =
+                                           Drag_Queens.id WHERE
+                                           Drag_Queen_Season.season_id = ?''',
                                            id, 0)
-    season_queens_name = fetchall_info_list('''SELECT Drag_Queens.name FROM Drag_Queen_Season JOIN Drag_Queens ON Drag_Queen_Season.drag_queen_id = Drag_Queens.id WHERE Drag_Queen_Season.season_id = ?''', id, 0)
-    season_episodes_ids = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 0)
-    season_episodes_names = fetchall_info_list("SELECT id, name FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 1)
-    season_episodes_imgs = fetchall_info_list("SELECT img_link FROM Episodes WHERE season_id = ? ORDER BY season_order ASC", id, 0)
+    season_queens_name = fetchall_info_list('''SELECT Drag_Queens.name FROM
+                                            Drag_Queen_Season JOIN Drag_Queens
+                                            ON
+                                            Drag_Queen_Season.drag_queen_id =
+                                            Drag_Queens.id WHERE
+                                            Drag_Queen_Season.season_id = ?''',
+                                            id, 0)
+    season_episodes_ids = fetchall_info_list('''SELECT id, name FROM Episodes
+                                             WHERE season_id = ? ORDER BY
+                                             season_order ASC''', id, 0)
+    season_episodes_names = fetchall_info_list('''SELECT id, name FROM
+                                               Episodes WHERE season_id = ?
+                                               ORDER BY season_order ASC''',
+                                               id, 1)
+    season_episodes_imgs = fetchall_info_list('''SELECT img_link FROM Episodes
+                                              WHERE season_id = ? ORDER BY
+                                              season_order ASC''', id, 0)
 
-    return render_template("season_info.html", 
+    return render_template("season_info.html",
                            season_id=id,
                            season_credit=season_credit,
                            season_name=season_name,
@@ -190,25 +212,24 @@ def drag_queens(id):
     def drag_queen_filter(constraint, filter):
         # Getting the ids and names of drag queens ordered by season
         if filter == 1:
-            drag_queens_info = sql(False, '''SELECT 
+            drag_queens_info = sql(False, '''SELECT
                                 Drag_Queen_Season.drag_queen_id,
                                 Drag_Queens.name FROM Drag_Queen_Season
-                                JOIN Drag_Queens ON 
+                                JOIN Drag_Queens ON
                                 Drag_Queen_Season.drag_queen_id =
-                                Drag_Queens.id WHERE 
+                                Drag_Queens.id WHERE
                                 Drag_Queen_Season.season_id = ?''',
-                                constraint)
+                                   constraint)
         # Getting the ids and names of drag queens ordered by city
         if filter == 2:
-            drag_queens_info = sql(False, '''SELECT id, name FROM 
+            drag_queens_info = sql(False, '''SELECT id, name FROM
                                    Drag_Queens WHERE city = ?''',
                                    constraint)
         # Getting the ids and names of drag queens ordered by age
         if filter == 3:
-            drag_queens_info = sql(False, '''SELECT id, name FROM 
-                                      Drag_Queens WHERE age 
+            drag_queens_info = sql(False, '''SELECT id, name FROM
+                                      Drag_Queens WHERE age
                                       BETWEEN ? AND ?''', constraint)
-            
         # Putting the ids and names of the queens into two different lists
         drag_queen_ids = []
         drag_queen_names = []
@@ -217,71 +238,67 @@ def drag_queens(id):
             drag_queen_names.append(drag_queens_info[queen][1])
 
         return drag_queen_ids, drag_queen_names
-    
     # The default page of drag queen info page
     if id == 0:
         # Getting the id of one the most recent seasons
-        recent_season_id = sql(True, '''SELECT id, MAX(release_year) FROM 
+        recent_season_id = sql(True, '''SELECT id, MAX(release_year) FROM
                                Seasons''', None)[0]
-        recent_season_name = sql(True, '''SELECT name, MAX(release_year) FROM 
+        recent_season_name = sql(True, '''SELECT name, MAX(release_year) FROM
                                Seasons''', None)[0]
-                            
-        # Getting the names and ids of the queens from the 
+        # Getting the names and ids of the queens from the
         # most recent season in a list
         recentdrag_queen_ids = drag_queen_filter(recent_season_id, 1)[0]
         recentdrag_queen_names = drag_queen_filter(recent_season_id, 1)[1]
-
         # Getting the names of famous contestants to come out of drag race
         famous_queen_ids = [15, 16, 57, 41, 56]
         famous_queen_names = []
         for queen_id in famous_queen_ids:
-            queen_name = sql(True, '''SELECT name FROM Drag_Queens 
+            queen_name = sql(True, '''SELECT name FROM Drag_Queens
                              WHERE id = ?''', queen_id)[0]
             famous_queen_names.append(queen_name)
 
-        return render_template("drag_queens.html", 
+        return render_template("drag_queens.html",
                                page_id=id,
                                season_name=recent_season_name,
-                               drag_queen_ids=recentdrag_queen_ids, 
+                               drag_queen_ids=recentdrag_queen_ids,
                                drag_queen_names=recentdrag_queen_names,
                                famous_queen_ids=famous_queen_ids,
                                famous_queen_names=famous_queen_names,
                                title="Drag Queens")
 
     else:
-        # The next section codes for a page that allows users to 
-        # filter drag queens by seasons 
+        # The next section codes for a page that allows users to
+        # filter drag queens by seasons
         if id == 1:
             # Getting the names and ids of all the seasons
-            # in the Drag Race franchise 
+            # in the Drag Race franchise
             season_ids = fetchall_info_list("SELECT id FROM Seasons", None, 0)
             headings = fetchall_info_list("SELECT name FROM Seasons", None, 0)
             drag_queens = {}
 
-            # Getting the names and ids of the queens of each season 
+            # Getting the names and ids of the queens of each season
             # within the Drag Race franchise
             for index, season_id in enumerate(season_ids):
                 drag_queen_ids = drag_queen_filter(season_id, 1)[0]
-                drag_queen_names = drag_queen_filter(season_id, 1)[1] 
+                drag_queen_names = drag_queen_filter(season_id, 1)[1]
                 drag_queens[headings[index]] = [drag_queen_ids,
                                                 drag_queen_names]
-                
-        # The next section codes for a page where drag queens are 
+        # The next section codes for a page where drag queens are
         # filtered by cities
         if id == 2:
             # Getting all the unique cities of origin of the drag queens
-            headings = fetchall_info_list('''SELECT DISTINCT city 
+            headings = fetchall_info_list('''SELECT DISTINCT city
                                         FROM Drag_Queens''', None, 0)
             drag_queens = {}
 
-            # Getting the names and ids of drag queens for each 
+            # Getting the names and ids of drag queens for each
             # unique city
             for city in headings:
                 drag_queen_ids = drag_queen_filter(city, 2)[0]
                 drag_queen_names = drag_queen_filter(city, 2)[1]
                 drag_queens[city] = [drag_queen_ids, drag_queen_names]
 
-        # The next section codes for a page where drag queens are 
+        # The next section codes for a page where drag queens are
         # filtered by age range
         if id == 3:
             age_ranges = [[20, 29], [30, 39], [40, 49]]
@@ -291,24 +308,22 @@ def drag_queens(id):
             for index, age_range in enumerate(age_ranges):
                 drag_queen_ids = drag_queen_filter(age_range, 3)[0]
                 drag_queen_names = drag_queen_filter(age_range, 3)[1]
-                drag_queens[headings[index]] = [drag_queen_ids, drag_queen_names]
+                drag_queens[headings[index]] = [drag_queen_ids,
+                                                drag_queen_names]
 
-        return render_template("drag_queens.html", 
-                           page_id=id,
-                           headings=headings,
-                           drag_queens=drag_queens,
-                           title="Drag Queens")
-
-
+        return render_template("drag_queens.html",
+                               page_id=id,
+                               headings=headings,
+                               drag_queens=drag_queens,
+                               title="Drag Queens")
 
 
 @app.route("/drag_queen_info/<int:id>")
 def drag_queen_info(id):
-    # Getting the names, specialty skills, city of origin and age of 
+    # Getting the names, specialty skills, city of origin and age of
     # a particular drag queen
     drag_queen_info = sql(True, "SELECT * FROM Drag_Queens WHERE id = ?", id)
-    
-    # Leading users to the error 404 page when the query gives 
+    # Leading users to the error 404 page when the query gives
     # None result
     if drag_queen_info is None:
         abort(404)
@@ -319,7 +334,7 @@ def drag_queen_info(id):
     city = drag_queen_info[4]
     age = drag_queen_info[5]
     iconic_quote = drag_queen_info[7]
-    img_credit= drag_queen_info[6]
+    img_credit = drag_queen_info[6]
 
     return render_template("drag_queen_info.html",
                            id=id,
@@ -334,12 +349,11 @@ def drag_queen_info(id):
 
 
 @app.route("/episode_info/<int:id>")
-def episode_info(id): 
-    episode_info = sql(True, '''SELECT name, challenge_description, 
-                       runway_theme, img_link, img_source 
-                       FROM Episodes WHERE 
+def episode_info(id):
+    episode_info = sql(True, '''SELECT name, challenge_description,
+                       runway_theme, img_link, img_source
+                       FROM Episodes WHERE
                        id = ?''', id)
-    
     # Redirect to 404 page if the previous query gives an empty result
     if episode_info is None:
         abort(404)
@@ -350,37 +364,55 @@ def episode_info(id):
     episode_runway_theme = episode_info[2]
     episode_img = episode_info[3]
     episode_credit = episode_info[4]
-    episode_challenge_type = sql(True, '''SELECT Maxi_Challenge_Type.name FROM Episodes JOIN Maxi_Challenge_Type ON Episodes.maxi_challenge_type_id = Maxi_Challenge_Type.id WHERE Episodes.id = ?''', id)[0]
-    season_id = sql(True, '''SELECT season_id FROM Episodes WHERE id = ?''', id)[0]
-    season_name = sql(True, '''SELECT name FROM Seasons WHERE id = ?''', season_id)[0]
-    
+    episode_challenge_type = sql(True, '''SELECT Maxi_Challenge_Type.name FROM
+                                 Episodes JOIN Maxi_Challenge_Type ON
+                                 Episodes.maxi_challenge_type_id =
+                                 Maxi_Challenge_Type.id WHERE
+                                 Episodes.id = ?''', id)[0]
+    season_id = sql(True, '''SELECT season_id FROM Episodes WHERE id = ?''',
+                    id)[0]
+    season_name = sql(True, '''SELECT name FROM Seasons WHERE id = ?''',
+                      season_id)[0]
     # If the episode is a finale episode, get information about the winners of
-    # the season and the queens that made it to the last episode        
+    # the season and the queens that made it to the last episode
     if episode_challenge_type == "Finale":
-        finale_lip_sync = sql(True, '''SELECT lip_sync_song FROM 
-                              Grand_Finale_Episodes WHERE 
+        finale_lip_sync = sql(True, '''SELECT lip_sync_song FROM
+                              Grand_Finale_Episodes WHERE
                               episode_id = ?''', id)[0]
-        finale_special_guest = sql(True, '''SELECT special_guest FROM 
-                              Grand_Finale_Episodes WHERE 
-                              episode_id = ?''', id)[0] 
-        winner_id = sql(True, '''SELECT winner FROM Grand_Finale_Episodes 
+        finale_special_guest = sql(True, '''SELECT special_guest FROM
+                              Grand_Finale_Episodes WHERE
+                              episode_id = ?''', id)[0]
+        winner_id = sql(True, '''SELECT winner FROM Grand_Finale_Episodes
                         WHERE episode_id = ?''', id)[0]
-        winner_name = sql(True, '''SELECT name FROM Drag_Queens WHERE id = ?''', winner_id)[0]
+        winner_name = sql(True, '''SELECT name FROM Drag_Queens
+                          WHERE id = ?''', winner_id)[0]
         input_list = [id, winner_id]
-        winner_performance = sql(True, '''SELECT performance FROM Drag_Queen_Grand_Finale WHERE episode_id = ? AND drag_queen_id = ?''', input_list)[0]
-        queen_ids = fetchall_info_list('''SELECT drag_queen_id FROM Drag_Queen_Grand_Finale WHERE episode_id = ?''', id, 0)
-        queen_names = fetchall_info_list('''SELECT Drag_Queens.name FROM Drag_Queen_Grand_Finale JOIN Drag_Queens ON Drag_Queen_Grand_Finale.drag_queen_id = Drag_Queens.id WHERE episode_id = ?''', id, 0)
-        queen_performances = fetchall_info_list('''SELECT performance FROM Drag_Queen_Grand_Finale WHERE episode_id = ?''', id, 0)
+        winner_performance = sql(True, '''SELECT performance FROM
+                                 Drag_Queen_Grand_Finale WHERE
+                                 episode_id = ? AND drag_queen_id = ?''',
+                                 input_list)[0]
+        queen_ids = fetchall_info_list('''SELECT drag_queen_id FROM
+                                       Drag_Queen_Grand_Finale WHERE
+                                       episode_id = ?''', id, 0)
+        queen_names = fetchall_info_list('''SELECT Drag_Queens.name FROM
+                                         Drag_Queen_Grand_Finale JOIN
+                                         Drag_Queens ON
+                                         Drag_Queen_Grand_Finale.drag_queen_id
+                                         = Drag_Queens.id WHERE
+                                         episode_id = ?''', id, 0)
+        queen_performances = fetchall_info_list('''SELECT performance FROM
+                                                Drag_Queen_Grand_Finale WHERE
+                                                episode_id = ?''', id, 0)
         queen_ids.remove(winner_id)
         queen_names.remove(winner_name)
         queen_performances.remove(winner_performance)
 
-        return render_template("grand_episode_info.html", 
+        return render_template("grand_episode_info.html",
                                episode_name=episode_name,
                                episode_credit=episode_credit,
                                episode_img=episode_img,
                                episode_runway_theme=episode_runway_theme,
-                               episode_challenge_description=episode_challenge_description, 
+                               episode_challenge_description=episode_challenge_description,
                                episode_challenge_type=episode_challenge_type,
                                finale_lip_sync=finale_lip_sync,
                                finale_special_guest=finale_special_guest,
@@ -393,22 +425,37 @@ def episode_info(id):
                                season_id=season_id,
                                season_name=season_name,
                                title="Episode Information")
-    
     else:
-        episode_queens = fetchall_info_list("SELECT Drag_Queens.name, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
-        episode_queens_ids = fetchall_info_list("SELECT Drag_Queens.id, Placings.name FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
-        episode_placing_ids = fetchall_info_list("SELECT Drag_Queen_Episodes.placing_id FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?", id, 0)
-        
+        episode_queens = fetchall_info_list('''SELECT Drag_Queens.name,
+                                            Placings.name FROM
+                                            Drag_Queen_Episodes JOIN
+                                            Drag_Queens ON
+                                            Drag_Queen_Episodes.drag_queen_id =
+                                            Drag_Queens.id JOIN Placings ON
+                                            Drag_Queen_Episodes.placing_id =
+                                            Placings.id WHERE
+                                            episode_id = ?''', id, 0)
+        episode_queens_ids = fetchall_info_list('''SELECT Drag_Queens.id,
+                                                Placings.name FROM
+                                                Drag_Queen_Episodes JOIN
+                                                Drag_Queens ON
+                                                Drag_Queen_Episodes.drag_queen_id
+                                                = Drag_Queens.id JOIN Placings
+                                                ON
+                                                Drag_Queen_Episodes.placing_id
+                                                = Placings.id WHERE episode_id
+                                                = ?''', id, 0)
+        episode_placing_ids = fetchall_info_list('''SELECT Drag_Queen_Episodes.placing_id FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?''', id, 0)       
         # Ordering the queens in an episode based on their particular rank
         # within the episode
-        # This is to ensure that the queens are shown in the correct order from 
+        # This is to ensure that the queens are shown in the correct order from
         # the winner to the eliminated queens
-        safe_queens = {"drag_queen_ids": [],"drag_queen_names": []}
-        immune = {"drag_queen_ids": [],"drag_queen_names": []}
-        winner = {"drag_queen_ids": [],"drag_queen_names": []}
-        top_2 = {"drag_queen_ids": [],"drag_queen_names": []}
-        eliminated = {"drag_queen_ids": [],"drag_queen_names": []}
-        bottom_2 = {"drag_queen_ids": [],"drag_queen_names": []}
+        safe_queens = {"drag_queen_ids": [], "drag_queen_names": []}
+        immune = {"drag_queen_ids": [], "drag_queen_names": []}
+        winner = {"drag_queen_ids": [], "drag_queen_names": []}
+        top_2 = {"drag_queen_ids": [], "drag_queen_names": []}
+        eliminated = {"drag_queen_ids": [], "drag_queen_names": []}
+        bottom_2 = {"drag_queen_ids": [], "drag_queen_names": []}
 
         for index in range(len(episode_queens)):
             if episode_placing_ids[index] == 4:
@@ -429,8 +476,8 @@ def episode_info(id):
             if episode_placing_ids[index] == 6:
                 bottom_2["drag_queen_ids"].append(episode_queens_ids[index])
                 bottom_2["drag_queen_names"].append(episode_queens[index])
-        queen_rankings = [winner, top_2, safe_queens, bottom_2, eliminated, immune]
-        
+        queen_rankings = [winner, top_2, safe_queens, bottom_2, eliminated,
+                          immune]
     return render_template("episode_info.html",
                            id=id,
                            season_id=season_id,
@@ -439,27 +486,28 @@ def episode_info(id):
                            episode_credit=episode_credit,
                            episode_img=episode_img,
                            episode_runway_theme=episode_runway_theme,
-                           episode_challenge_description=episode_challenge_description, 
-                           episode_challenge_type=episode_challenge_type, 
+                           episode_challenge_description=
+                           episode_challenge_description,
+                           episode_challenge_type=episode_challenge_type,
                            season_name=season_name,
                            title="Episode Information")
 
 
-# Code for the login and logout route courtesy of Sir Steven Rodkiss
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # getting the username and password from the 
+    # Code for the login and logout route courtesy of Sir Steven Rodkiss
+    # getting the username and password from the
     # form in login.html
     if request.method == "POST":
-        username = request.form.get('user') # using .get allows you to get stuff using the name
+        # using .get allows you to get stuff using the name
+        username = request.form.get('user')
         password = request.form.get('pass')
         correct_username = "anetraShouldHavewon"
         correct_password = "howyoudoinggorge12"
-        
         # Logging the user in if the username and password are correct
         if username == correct_username and password == correct_password:
             session['login'] = True
-            return redirect ("/admin/0")
+            return redirect("/admin/0")
         # The error messages that will flash for various scenarios
         # Scenarios where the fields are not filled out
         elif len(username) == 0 and len(password) == 0:
@@ -475,9 +523,9 @@ def login():
             flash("Wrong username")
         elif password != correct_password:
             flash("Wrong password")
-             
-    return render_template("login.html",
-                           title="Login")
+        return render_template("login.html",
+                               title="Login")
+
 
 @app.route("/admin/<int:id>", methods=["GET", "POST"])
 def admin(id):
@@ -514,8 +562,6 @@ def admin(id):
                     return [foreign_key_table_columns,
                             foreign_key_columns,
                             foreign_key_tables]
-            
-
         # Code from https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
         # Creating a dictionary with table names as keys and the table's column
         # names and foreign key info as the values
@@ -525,7 +571,6 @@ def admin(id):
         # the database, redirect to the 404 page
         if id > len(table_names) or id < 1:
             abort(404)
-        
         table_columns_dict = {}
         for table_name in table_names:
             table = Table(table_name)
@@ -533,19 +578,17 @@ def admin(id):
             table_foreign_key_names = table.get_foreign_keys()
             table_columns_dict[table_name] = [table_column_names,
                                               table_foreign_key_names]
-        
-        # Dealing with the data from the form by putting the data inputted 
+        # Dealing with the data from the form by putting the data inputted
         # into their respective columns in the database
         insert = True
         if request.method == "POST":
-            # Getting the table name and the column of the tables in 
+            # Getting the table name and the column of the tables in
             # preparation for data to be inserted into the database
             table_name = table_names[id-1]
             table_column_names = table_columns_dict[table_name][0]
             if table_columns_dict[table_name][1] is not None:
                 table_foreign_key_names = table_columns_dict[table_name][1][1]
                 table_foreign_key_tables = table_columns_dict[table_name][1][2]
-
             values = []
             # For every column in the table, get the information inputted from
             # the form. If the field is not filled out, flash an error message.
@@ -555,7 +598,7 @@ def admin(id):
                 for table_column in table_column_names:
                     answer = request.form.get(table_column)
                     if len(answer) == 0:
-                        flash(f'''You have not entered anything into 
+                        flash(f'''You have not entered anything into
                               the {table_column} field.''')
                         insert = False
                     else:
@@ -564,7 +607,7 @@ def admin(id):
                             foreign_key_table = table_foreign_key_tables[index]
                             foreign_key_datalist = table_columns_dict[table_name][1][0][table_column]
                             if answer not in foreign_key_datalist:
-                                flash(f'''Input is not available as an option 
+                                flash(f'''Input is not available as an option
                                       in the {table_column} field''')
                                 insert = False
                             else:
@@ -573,7 +616,8 @@ def admin(id):
             table_column_names = tuple(table_column_names)
             if insert:
                 sql_insert(table_name, table_column_names, values)
-                flash(f"Information was successfully inflitrated into {table_name}")
+                flash(f'''Information was successfully
+                      inflitrated into {table_name}''')
     else:
         return redirect("/")
     return render_template("admin.html",
@@ -582,7 +626,8 @@ def admin(id):
                            table_names=table_names,
                            table_id=id,
                            insert=insert)
-        
+
+
 @app.route("/logout")
 def logout():
     # if the login button is pressed, end the session and redirect to
@@ -590,9 +635,11 @@ def logout():
     session['login'] = False
     return redirect("/")
 
+
 @app.errorhandler(404)
 def error(e):
     return render_template("404.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
