@@ -105,7 +105,10 @@ for table_column in table_column_names:
         foreign_key_datalist = table_columns_dict[table_name][1][0][table_column]
         if answer not in foreign_key_datalist:
             print(f"This option is not available in the {table_column} field")
-
+foreign_key_table = "Drag_Queens"
+answer = "Rupaul's Drag Race: Season 15"
+#answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, answer))[0]
+print(answer)
 def sql_insert(table, column, value):
     connection = sqlite3.connect("drag_queen.db")
     cursor = connection.cursor()
@@ -117,7 +120,9 @@ def sql_insert(table, column, value):
     connection.commit()
     connection.close()
 
-
+answer = input("something: ")
+hashed_answer = generate_password_hash(answer)
+print(hashed_answer)
 
 
 

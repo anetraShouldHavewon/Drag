@@ -25,8 +25,10 @@
 }
 /*General Styling*/
 body{
+    width: 100vw;
     margin: 0;
 }
+
 main{
     background-image: url(/static/photos/other/possible\ backgrounds/1.jpg);
     background-color: black;
@@ -35,6 +37,7 @@ main{
     background-attachment: fixed;
     background-repeat: repeat;
     padding-top: 64px;
+    width: 120vw;
 }
 
 h1{
@@ -944,6 +947,7 @@ footer{
     padding-left: 60px;
     background-color: #675876;
     height: 20%; 
+    width: 115vw;
 }
 
 .footer_h2{

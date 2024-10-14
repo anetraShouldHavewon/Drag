@@ -320,21 +320,21 @@ def drag_queens(id):
 
 @app.route("/drag_queen_info/<int:id>")
 def drag_queen_info(id):
+    # Getting a list of all the existing ids in the drag queens table
+    # If the id in the URL is not in this list, redirect to the error 
+    # 404 page
+    drag_queen_ids = fetchall_info_list("SELECT id FROM Drag_Queens", None, 0)
+    if id not in drag_queen_ids:
+        abort(404)
     # Getting the names, specialty skills, city of origin and age of
     # a particular drag queen
     drag_queen_info = sql(True, "SELECT * FROM Drag_Queens WHERE id = ?", id)
-    # Leading users to the error 404 page when the query gives
-    # None result
-    if drag_queen_info is None:
-        abort(404)
-
     name = drag_queen_info[1]
     specialty_skills = drag_queen_info[2]
-    description = drag_queen_info[3]
-    city = drag_queen_info[4]
-    age = drag_queen_info[5]
-    iconic_quote = drag_queen_info[7]
-    img_credit = drag_queen_info[6]
+    city = drag_queen_info[3]
+    age = drag_queen_info[4]
+    iconic_quote = drag_queen_info[6]
+    img_credit = drag_queen_info[5]
 
     return render_template("drag_queen_info.html",
                            id=id,
@@ -343,27 +343,27 @@ def drag_queen_info(id):
                            city=city, age=age,
                            drag_queen=drag_queen_info,
                            iconic_quote=iconic_quote,
-                           description=description,
                            img_credit=img_credit,
                            title="Drag Queen Information")
 
 
 @app.route("/episode_info/<int:id>")
 def episode_info(id):
-    episode_info = sql(True, '''SELECT name, challenge_description,
+    # Fetch a list of all the xisting ids in the episodes table
+    # If the id section of the URL is not in the list fetched
+    # Redirect to the error 404 page
+    episode_ids = fetchall_info_list("SELECT id FROM Episodes", None, 0)
+    if id not in episode_ids:
+        abort(404)
+    # Getting the general information on a particular episode
+    episode_info = sql(True, '''SELECT name,
                        runway_theme, img_link, img_source
                        FROM Episodes WHERE
                        id = ?''', id)
-    # Redirect to 404 page if the previous query gives an empty result
-    if episode_info is None:
-        abort(404)
-
-    # Getting the general information on a particular episode
     episode_name = episode_info[0].upper()
-    episode_challenge_description = episode_info[1]
-    episode_runway_theme = episode_info[2]
-    episode_img = episode_info[3]
-    episode_credit = episode_info[4]
+    episode_runway_theme = episode_info[1]
+    episode_img = episode_info[2]
+    episode_credit = episode_info[3]
     episode_challenge_type = sql(True, '''SELECT Maxi_Challenge_Type.name FROM
                                  Episodes JOIN Maxi_Challenge_Type ON
                                  Episodes.maxi_challenge_type_id =
@@ -412,7 +412,6 @@ def episode_info(id):
                                episode_credit=episode_credit,
                                episode_img=episode_img,
                                episode_runway_theme=episode_runway_theme,
-                               episode_challenge_description=episode_challenge_description,
                                episode_challenge_type=episode_challenge_type,
                                finale_lip_sync=finale_lip_sync,
                                finale_special_guest=finale_special_guest,
@@ -486,8 +485,6 @@ def episode_info(id):
                            episode_credit=episode_credit,
                            episode_img=episode_img,
                            episode_runway_theme=episode_runway_theme,
-                           episode_challenge_description=
-                           episode_challenge_description,
                            episode_challenge_type=episode_challenge_type,
                            season_name=season_name,
                            title="Episode Information")
@@ -523,7 +520,7 @@ def login():
             flash("Wrong username")
         elif password != correct_password:
             flash("Wrong password")
-        return render_template("login.html",
+    return render_template("login.html",
                                title="Login")
 
 
@@ -600,6 +597,10 @@ def admin(id):
                     if len(answer) == 0:
                         flash(f'''You have not entered anything into
                               the {table_column} field.''')
+                        insert = False
+                    elif "'" in answer:
+                        flash(f'''You used single quotes in {table_column}.
+                              Use &apos; to denote single quotes.''')
                         insert = False
                     else:
                         if table_column in table_foreign_key_names:
