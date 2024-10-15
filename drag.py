@@ -48,7 +48,7 @@ def alt_sql(fetchone, query):
     return result
 
 
-def alt_fetchall_info_list(fetch_query, column_index):
+def alt_fetchall(fetch_query, column_index):
     # Converting the output of fetchall queries into a list
     fetchall_output = alt_sql(False, fetch_query)
     return_list = []
@@ -444,7 +444,17 @@ def episode_info(id):
                                                 Drag_Queen_Episodes.placing_id
                                                 = Placings.id WHERE episode_id
                                                 = ?''', id, 0)
-        episode_placing_ids = fetchall_info_list('''SELECT Drag_Queen_Episodes.placing_id FROM Drag_Queen_Episodes JOIN Drag_Queens ON Drag_Queen_Episodes.drag_queen_id = Drag_Queens.id JOIN Placings ON Drag_Queen_Episodes.placing_id = Placings.id WHERE episode_id = ?''', id, 0)       
+        episode_placing_ids = fetchall_info_list('''SELECT
+                                                 Drag_Queen_Episodes.
+                                                 placing_id FROM
+                                                 Drag_Queen_Episodes 
+                                                 JOIN Drag_Queens ON
+                                                 Drag_Queen_Episodes.
+                                                 drag_queen_id = 
+                                                 Drag_Queens.id JOIN 
+                                                 Placings ON 
+                                                 Drag_Queen_Episodes.placing_id = 
+                                                 Placings.id WHERE episode_id = ?''', id, 0)       
         # Ordering the queens in an episode based on their particular rank
         # within the episode
         # This is to ensure that the queens are shown in the correct order from
@@ -548,12 +558,22 @@ def admin(id):
             def get_foreign_keys(self):
                 foreign_key_info = alt_sql(False, "PRAGMA foreign_key_list({table_name})".format(table_name=self.name))
                 if len(foreign_key_info) != 0:
-                    foreign_key_columns = alt_fetchall_info_list('''PRAGMA foreign_key_list({table_name})'''.format(table_name=self.name), 3)
-                    foreign_key_tables = alt_fetchall_info_list("PRAGMA foreign_key_list({table_name})".format(table_name=self.name), 2)
+                    foreign_key_columns = alt_fetchall('''PRAGMA
+                                                       foreign_key_list
+                                                       ({table_name})
+                                                       '''.format
+                                                       (table_name=self.name),
+                                                       3)
+                    foreign_key_tables = alt_fetchall('''PRAGMA
+                                                      foreign_key_list
+                                                      ({table_name})
+                                                      '''.format
+                                                      (table_name=self.name),
+                                                      2)
                     foreign_key_table_columns = {}
                     for index, column in enumerate(foreign_key_columns):
                         foreign_key_table = foreign_key_tables[index]
-                        foreign_key_datalist = alt_fetchall_info_list("SELECT name FROM {table_name}".format(table_name=foreign_key_table), 0)
+                        foreign_key_datalist = alt_fetchall("SELECT name FROM {table_name}".format(table_name=foreign_key_table), 0)
                         foreign_key_table_columns[column] = foreign_key_datalist
 
                     return [foreign_key_table_columns,
@@ -600,7 +620,7 @@ def admin(id):
                         insert = False
                     elif "'" in answer:
                         flash(f'''You used single quotes in {table_column}.
-                              Use &apos; to denote single quotes.''')
+                              Do not use single quotes please''')
                         insert = False
                     else:
                         if table_column in table_foreign_key_names:
