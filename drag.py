@@ -3,6 +3,7 @@ from flask import Flask, render_template, abort, request, session, redirect
 from flask import flash
 import sqlite3
 import random
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -77,6 +78,20 @@ def sql_insert(table, column, value):
     cursor.execute(query, value)
     connection.commit()
     connection.close()
+
+
+def no_dash(table_name):
+    '''This function splits the string given to it, iterates through all
+    the letters and removes the '_' from the string'''
+    split_name = [letter for letter in table_name]
+    no_dash_name = []
+    for letter in split_name:
+        if letter != "_":
+            no_dash_name.append(letter)
+        else:
+            no_dash_name.append(" ")
+    no_dash_name = ''.join(no_dash_name)
+    return no_dash_name
 
 
 @app.route("/")
@@ -321,7 +336,7 @@ def drag_queens(id):
 @app.route("/drag_queen_info/<int:id>")
 def drag_queen_info(id):
     # Getting a list of all the existing ids in the drag queens table
-    # If the id in the URL is not in this list, redirect to the error 
+    # If the id in the URL is not in this list, redirect to the error
     # 404 page
     drag_queen_ids = fetchall_info_list("SELECT id FROM Drag_Queens", None, 0)
     if id not in drag_queen_ids:
@@ -447,14 +462,15 @@ def episode_info(id):
         episode_placing_ids = fetchall_info_list('''SELECT
                                                  Drag_Queen_Episodes.
                                                  placing_id FROM
-                                                 Drag_Queen_Episodes 
+                                                 Drag_Queen_Episodes
                                                  JOIN Drag_Queens ON
                                                  Drag_Queen_Episodes.
-                                                 drag_queen_id = 
-                                                 Drag_Queens.id JOIN 
-                                                 Placings ON 
-                                                 Drag_Queen_Episodes.placing_id = 
-                                                 Placings.id WHERE episode_id = ?''', id, 0)       
+                                                 drag_queen_id =
+                                                 Drag_Queens.id JOIN
+                                                 Placings ON
+                                                 Drag_Queen_Episodes.placing_id =
+                                                 Placings.id WHERE episode_id =
+                                                 ?''', id, 0)     
         # Ordering the queens in an episode based on their particular rank
         # within the episode
         # This is to ensure that the queens are shown in the correct order from
@@ -509,29 +525,45 @@ def login():
         # using .get allows you to get stuff using the name
         username = request.form.get('user')
         password = request.form.get('pass')
-        correct_username = "anetraShouldHavewon"
-        correct_password = "howyoudoinggorge12"
-        # Logging the user in if the username and password are correct
-        if username == correct_username and password == correct_password:
-            session['login'] = True
-            return redirect("/admin/0")
+        username_list = fetchall_info_list('''SELECT username FROM
+                                           Login_Info''', None, 0)
         # The error messages that will flash for various scenarios
         # Scenarios where the fields are not filled out
-        elif len(username) == 0 and len(password) == 0:
+        if len(username) == 0 and len(password) == 0:
             flash("Username and password not filled out")
         elif len(username) == 0:
             flash("Username not filled out")
         elif len(password) == 0:
             flash("Password not filled out")
-        # Scenarios where fields are filled out but incorrect
-        elif username != correct_username and password != correct_password:
-            flash("Wrong username and password")
-        elif username != correct_username:
-            flash("Wrong username")
-        elif password != correct_password:
-            flash("Wrong password")
+        # Scenarios where the answers in the fields are longer than 200 chars
+        elif len(username) > 200 and len(password) > 200:
+            flash("Username and password longer than 200 characters")
+        elif len(username) > 200:
+            flash("Username longer than 200 characters")
+        elif len(password) > 200:
+            flash("Password longer than 200 characters")
+        # If the username is in the list of usernames in
+        # the database, fetch the password associated with
+        # that username
+        elif username in username_list:
+            correct_password = sql(True, '''SELECT password FROM
+                                   Login_Info WHERE username = ?''',
+                                   username)[0]
+            str_password = str(password)
+            # Evaluate if the password is correct
+            # If the password is correct, redirect to the first admin page
+            if check_password_hash(correct_password, str_password):
+                session['login'] = True
+                return redirect("/admin/1")
+            # else return an error message
+            else:
+                flash("Wrong password")
+        # if username not found in database return an error
+        # message
+        else:
+            flash("Account is not registered in database")
     return render_template("login.html",
-                               title="Login")
+                           title="Login")
 
 
 @app.route("/admin/<int:id>", methods=["GET", "POST"])
@@ -542,21 +574,32 @@ def admin(id):
             def __init__(self, name):
                 self.name = name
 
-            # Get the names of the columns of a table
             def get_column_names(self):
-                column_names_query = alt_sql(False, "PRAGMA table_info({table_name})".format(table_name=self.name))
+                # Get the names of the columns of a table
+                column_names_query = alt_sql(False, '''PRAGMA
+                                             table_info({table_name})
+                                             '''.format
+                                             (table_name=self.name))
                 column_names = []
                 for column in column_names_query:
                     if column[5] != 1:
                         column_name = column[1]
                         column_names.append(column_name)
-                return column_names
-            
+                # Removing the dashes from each column in the column name list
+                # And making a list out of all the names
+                no_dash_column_names = []
+                for column in column_names:
+                    no_dash_column = no_dash(column)
+                    no_dash_column_names.append(no_dash_column)
+                return [column_names, no_dash_column_names]
             # Get the names of the columns that contain any foreign keys
             # and the names of the tables the foreign key is from
             # and the 'name' row from the tables the foreign key is from
+
             def get_foreign_keys(self):
-                foreign_key_info = alt_sql(False, "PRAGMA foreign_key_list({table_name})".format(table_name=self.name))
+                foreign_key_info = alt_sql(False, '''PRAGMA foreign_key_list
+                                           ({table_name})'''.format
+                                           (table_name=self.name))
                 if len(foreign_key_info) != 0:
                     foreign_key_columns = alt_fetchall('''PRAGMA
                                                        foreign_key_list
@@ -573,28 +616,39 @@ def admin(id):
                     foreign_key_table_columns = {}
                     for index, column in enumerate(foreign_key_columns):
                         foreign_key_table = foreign_key_tables[index]
-                        foreign_key_datalist = alt_fetchall("SELECT name FROM {table_name}".format(table_name=foreign_key_table), 0)
-                        foreign_key_table_columns[column] = foreign_key_datalist
+                        foreign_key_datalist = alt_fetchall('''SELECT name
+                                                            FROM {table_name}
+                                                            '''.format
+                                                            (table_name
+                                                             =foreign_key_table),
+                                                            0)
+                        foreign_key_table_columns[column] = \
+                            foreign_key_datalist
 
                     return [foreign_key_table_columns,
                             foreign_key_columns,
                             foreign_key_tables]
-        # Code from https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
-        # Creating a dictionary with table names as keys and the table's column
-        # names and foreign key info as the values
-        table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'", None, 0)
+        table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'",
+                                         None, 0)
         table_names.pop(0)
+        table_no_dash_names = list(map(no_dash, table_names))
         # If the id is numeric, if it is larger than the amount of tables in
         # the database, redirect to the 404 page
         if id > len(table_names) or id < 1:
             abort(404)
+        # Code from
+        # https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
+        # Creating a dictionary with table names as keys and the table's column
+        # names and foreign key info as the values
         table_columns_dict = {}
         for table_name in table_names:
             table = Table(table_name)
-            table_column_names = table.get_column_names()
+            table_column_names = table.get_column_names()[0]
+            table_column_nodashnames = table.get_column_names()[1]
             table_foreign_key_names = table.get_foreign_keys()
             table_columns_dict[table_name] = [table_column_names,
-                                              table_foreign_key_names]
+                                              table_foreign_key_names,
+                                              table_column_nodashnames]
         # Dealing with the data from the form by putting the data inputted
         # into their respective columns in the database
         insert = True
@@ -618,21 +672,34 @@ def admin(id):
                         flash(f'''You have not entered anything into
                               the {table_column} field.''')
                         insert = False
+                    if len(answer) > 200:
+                        flash(f'''Input is longer than 200 characters
+                              in {table_column} field.''')
+                        insert = False
                     elif "'" in answer:
                         flash(f'''You used single quotes in {table_column}.
                               Do not use single quotes please''')
                         insert = False
                     else:
+                        # if the column is the password column in the
+                        # Login_Info, hash the answer before putting it
+                        # in the database
+                        if table_name == "Login_Info" and table_column == "password":
+                            answer = generate_password_hash(answer,
+                                                            method='pbkdf2')
                         if table_column in table_foreign_key_names:
                             index = table_foreign_key_names.index(table_column)
                             foreign_key_table = table_foreign_key_tables[index]
-                            foreign_key_datalist = table_columns_dict[table_name][1][0][table_column]
+                            foreign_key_datalist = \
+                                table_columns_dict[table_name][1][0][table_column]
                             if answer not in foreign_key_datalist:
                                 flash(f'''Input is not available as an option
                                       in the {table_column} field''')
                                 insert = False
                             else:
-                                answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, answer))[0]
+                                answer = \
+                                    alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" %
+                                            (foreign_key_table, answer))[0]
                     values.append(answer)
             table_column_names = tuple(table_column_names)
             if insert:
@@ -645,6 +712,7 @@ def admin(id):
                            title="Admin",
                            table_info=table_columns_dict,
                            table_names=table_names,
+                           table_no_dash_names=table_no_dash_names,
                            table_id=id,
                            insert=insert)
 

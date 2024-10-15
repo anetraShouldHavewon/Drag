@@ -72,6 +72,7 @@ nav{
     position: fixed;
     z-index: 2;
     clear:both;
+    overflow-x: scroll;
 }
 
 .navgrid{

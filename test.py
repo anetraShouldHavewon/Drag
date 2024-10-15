@@ -51,6 +51,17 @@ def alt_fetchall_info_list(fetch_query, column_index):
         return_list.append(item[column_index])
     return return_list
 
+def no_dash(table_name):
+    split_name = [letter for letter in table_name]
+    no_dash_name = []
+    for letter in split_name:
+        if letter != "_":
+            no_dash_name.append(letter)
+        else:
+            no_dash_name.append(" ")
+    no_dash_name = ''.join(no_dash_name)
+    return no_dash_name
+
 class Table:
     def __init__(self, name):
         self.name = name
@@ -62,7 +73,11 @@ class Table:
             if column[5] != 1:
                 column_name = column[1]
                 column_names.append(column_name)
-        return column_names
+        no_dash_column_names = []
+        for column in column_names:
+            no_dash_column = no_dash(column)
+            no_dash_column_names.append(no_dash_column)
+        return [column_names, no_dash_column_names]
     
     def get_foreign_keys(self):
         foreign_key_info = alt_sql(False, "PRAGMA foreign_key_list({table_name})".format(table_name=self.name))
@@ -83,20 +98,26 @@ class Table:
 # https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
 table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'", None, 0)
 table_names.pop(0)
+table_no_dash_names = list(map(no_dash, table_names))
 table_columns_dict = {}
 for table_name in table_names:
+    table_nodashname = no_dash(table_name)
     table = Table(table_name)
-    table_column_names = table.get_column_names()
+    table_column_names = table.get_column_names()[0]
+    table_column_nodashnames = table.get_column_names()[1]
     table_foreign_key_names = table.get_foreign_keys()
     table_columns_dict[table_name] = [table_column_names, 
-                                      table_foreign_key_names]
+                                      table_foreign_key_names,
+                                      table_column_nodashnames] ##
 
-table_name = table_names[2]
+table_name = table_names[0]
+table_no_dash_name = table_no_dash_names[0] ##
 table_column_names = table_columns_dict[table_name][0]
+table_column_nodashnames = table_columns_dict[table_name][2] ##
 if table_columns_dict[table_name][1] is not None:
     table_foreign_key_names = table_columns_dict[table_name][1][1]
     table_foreign_key_tables = table_columns_dict[table_name][1][2]
-    
+print(table_no_dash_name, table_column_nodashnames)
 answer = "No"
 for table_column in table_column_names:
     if table_column in table_foreign_key_names:
@@ -108,7 +129,7 @@ for table_column in table_column_names:
 foreign_key_table = "Drag_Queens"
 answer = "Rupaul's Drag Race: Season 15"
 #answer = alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" % (foreign_key_table, answer))[0]
-print(answer)
+# print(answer)
 def sql_insert(table, column, value):
     connection = sqlite3.connect("drag_queen.db")
     cursor = connection.cursor()
@@ -120,9 +141,11 @@ def sql_insert(table, column, value):
     connection.commit()
     connection.close()
 
-answer = input("something: ")
-hashed_answer = generate_password_hash(answer)
-print(hashed_answer)
+#dash_string = input("HEYY: ")
+
+#print(no_dash(dash_string))
+
+
 
 
 

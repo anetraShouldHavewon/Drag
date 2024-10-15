@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 {% set table_name = table_names[table_id-1] %}
+{% set table_name_dash = table_no_dash_names[table_id-1] %}
 {% set table_column_names = table_info[table_name][0] %}
+{% set table_column_nodash_names = table_info[table_name][2] %}
 {% set foreign_key_column_info = table_info[table_name][1] %}
 
 <div class="admin_container">
@@ -12,13 +14,13 @@
             {% if table_names[index] == table_name %}
                 <a href="/admin/{{index+1}}">
                     <div class="admin_selected_table admin_title">
-                        <h3>{{table_names[index]}}</h3>
+                        <h3>{{table_no_dash_names[index]}}</h3>
                     </div>
                 </a>
             {% else %}
                 <a href="/admin/{{index+1}}">
                     <div class="admin_table admin_title">
-                        <h3>{{table_names[index]}}</h3>
+                        <h3>{{table_no_dash_names[index]}}</h3>
                     </div>
                 </a>
             {% endif %}
@@ -26,7 +28,7 @@
     </div>
 
     <div class="admin_form_container">
-        <div class="admin_form_title"><h2>{{table_name}}</h2></div>
+        <div class="admin_form_title"><h2>{{table_name_dash}}</h2></div>
         <hr class="admin_hr">
         <div class="admin_errors">
             {% with messages = get_flashed_messages() %}
@@ -48,12 +50,14 @@
         <div class="admin_form">
             <form action="/admin/{{table_id}}" method="post">
                 <div class="admin_inputs">
-                {% for column in table_column_names %}
+                {% for index in range (table_column_names|length) %}
+                    {% set column = table_column_names[index] %}
+                    {% set no_dash_column = table_column_nodash_names[index] %}
                     {% if foreign_key_column_info != None %}
                         {% set foreign_columns = foreign_key_column_info[1] %}
                         {% if column in foreign_columns %}
                         <div class="admin_input">
-                            <label for="{{column}}"><h3>{{column}}</h3></label>
+                            <label for="{{column}}"><h3>{{no_dash_column}}</h3></label>
                             <input list="{{column}}" name="{{column}}">
                             <datalist id="{{column}}">
                                 {% set foreign_key_datalist = foreign_key_column_info[0][column] %}
@@ -64,14 +68,18 @@
                         </div>
                         {% else %}
                             <div class="admin_input">
-                                <label for="{{column}}"><h3>{{column}}</h3></label>
-                                <input type="text" name="{{column}}">
+                                <label for="{{column}}"><h3>{{no_dash_column}}</h3></label>
+                                <input type="text" name="{{column}}" maxlength="200">
                             </div>
                         {% endif %}
                     {% else %}
                         <div class="admin_input">
-                            <label for="{{column}}"><h3>{{column}}</h3></label>
-                            <input type="text" name="{{column}}">
+                            <label for="{{column}}"><h3>{{no_dash_column}}</h3></label>
+                            {% if column == "password" %}
+                                <input type="password" name="{{column}}" maxlength="200">
+                            {% else %}
+                                <input type="text" name="{{column}}" maxlength="200">
+                            {% endif %}
                         </div>
                     {% endif %}
                 {% endfor %}
