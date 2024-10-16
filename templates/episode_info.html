@@ -14,7 +14,9 @@
         <p>{{episod_challenge_description}}</p>
     </div>
     <div class = "episode_img_container">
+        {% if episode_img is None or episode_img == "None" %}
         <img class="episode_img" src="/static/photos/episodes/{{episode_img}}" alt-="img not found">
+        
     </div>
 </div>
 

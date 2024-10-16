@@ -144,7 +144,6 @@ def seasons():
     # Getting the ids and names of all the seasons and grouping them by the
     # franchises they are in
     franchise_dict = {}
-
     franchise_names = fetchall_info_list("SELECT name FROM Franchises",
                                          None, 0)
     franchise_ids = fetchall_info_list("SELECT id FROM Franchises",
@@ -440,6 +439,9 @@ def episode_info(id):
                                season_name=season_name,
                                title="Episode Information")
     else:
+        # For nornal episodes, get the ids and names of the queens
+        # as well as the id indicating their placing
+        # in the episode
         episode_queens = fetchall_info_list('''SELECT Drag_Queens.name,
                                             Placings.name FROM
                                             Drag_Queen_Episodes JOIN
@@ -470,7 +472,7 @@ def episode_info(id):
                                                  Placings ON
                                                  Drag_Queen_Episodes.placing_id =
                                                  Placings.id WHERE episode_id =
-                                                 ?''', id, 0)     
+                                                 ?''', id, 0)
         # Ordering the queens in an episode based on their particular rank
         # within the episode
         # This is to ensure that the queens are shown in the correct order from
@@ -481,7 +483,9 @@ def episode_info(id):
         top_2 = {"drag_queen_ids": [], "drag_queen_names": []}
         eliminated = {"drag_queen_ids": [], "drag_queen_names": []}
         bottom_2 = {"drag_queen_ids": [], "drag_queen_names": []}
-
+        # Evaluate the positions of the queens for a particular episode and
+        # add their names and ids to particular dictionaries above
+        # as values
         for index in range(len(episode_queens)):
             if episode_placing_ids[index] == 4:
                 safe_queens["drag_queen_ids"].append(episode_queens_ids[index])
@@ -529,6 +533,7 @@ def login():
                                            Login_Info''', None, 0)
         # The error messages that will flash for various scenarios
         # Scenarios where the fields are not filled out
+        # all flash an error message
         if len(username) == 0 and len(password) == 0:
             flash("Username and password not filled out")
         elif len(username) == 0:
@@ -536,6 +541,7 @@ def login():
         elif len(password) == 0:
             flash("Password not filled out")
         # Scenarios where the answers in the fields are longer than 200 chars
+        # all flash an error message
         elif len(username) > 200 and len(password) > 200:
             flash("Username and password longer than 200 characters")
         elif len(username) > 200:
@@ -568,8 +574,11 @@ def login():
 
 @app.route("/admin/<int:id>", methods=["GET", "POST"])
 def admin(id):
-    # A class which stores the name, and two functions for an sql table
+    # If the user is logged in, allow the user to see the admin page
+    # when the admin route is entered into the URL
+    # else, redirect them to the home page
     if session['login'] is True:
+        # A class which stores the name, and two functions for an sql table
         class Table:
             def __init__(self, name):
                 self.name = name
@@ -597,16 +606,22 @@ def admin(id):
             # and the 'name' row from the tables the foreign key is from
 
             def get_foreign_keys(self):
+                # Checking if a table has foreign keys by using the
+                # PRAGMA foreign_key_list query
                 foreign_key_info = alt_sql(False, '''PRAGMA foreign_key_list
                                            ({table_name})'''.format
                                            (table_name=self.name))
+                # If the query does return a result for 
+                # showing that the table does contain foreign keys
                 if len(foreign_key_info) != 0:
+                    # Gets the columns in the table that are foreign keys
                     foreign_key_columns = alt_fetchall('''PRAGMA
                                                        foreign_key_list
                                                        ({table_name})
                                                        '''.format
                                                        (table_name=self.name),
                                                        3)
+                    # Gets the tables that the foreign keys are linked to
                     foreign_key_tables = alt_fetchall('''PRAGMA
                                                       foreign_key_list
                                                       ({table_name})
@@ -614,13 +629,18 @@ def admin(id):
                                                       (table_name=self.name),
                                                       2)
                     foreign_key_table_columns = {}
+                    # For each foreign key column, get all the names of the
+                    # options from the table that foreign key column
+                    # Store this list of options as a column in the foreign
+                    # key table columns under the name of the column of the
+                    # table in the database as the key in the dictionary
                     for index, column in enumerate(foreign_key_columns):
                         foreign_key_table = foreign_key_tables[index]
                         foreign_key_datalist = alt_fetchall('''SELECT name
                                                             FROM {table_name}
                                                             '''.format
-                                                            (table_name
-                                                             =foreign_key_table),
+                                                            (table_name=
+                                                             foreign_key_table),
                                                             0)
                         foreign_key_table_columns[column] = \
                             foreign_key_datalist
@@ -628,18 +648,22 @@ def admin(id):
                     return [foreign_key_table_columns,
                             foreign_key_columns,
                             foreign_key_tables]
+        # Getting a list of the names of the tables in
+        # database
         table_names = fetchall_info_list("SELECT name FROM sqlite_master WHERE type='table'",
                                          None, 0)
         table_names.pop(0)
+        # Getting a list of the names of the tables in database
+        # with the dashes removed from the names
         table_no_dash_names = list(map(no_dash, table_names))
-        # If the id is numeric, if it is larger than the amount of tables in
+        # When the id is numeric, if it is larger than the amount of tables in
         # the database, redirect to the 404 page
         if id > len(table_names) or id < 1:
             abort(404)
         # Code from
         # https://stackoverflow.com/questions/13514509/search-sqlite-database-all-tables-and-columns
         # Creating a dictionary with table names as keys and the table's column
-        # names and foreign key info as the values
+        # names and information about the foreign key as the values
         table_columns_dict = {}
         for table_name in table_names:
             table = Table(table_name)
@@ -660,49 +684,75 @@ def admin(id):
             if table_columns_dict[table_name][1] is not None:
                 table_foreign_key_names = table_columns_dict[table_name][1][1]
                 table_foreign_key_tables = table_columns_dict[table_name][1][2]
-            values = []
+            values = []  # the list of values to be inserted into the database
             # For every column in the table, get the information inputted from
-            # the form. If the field is not filled out, flash an error message.
-            # Else, add the information from the form into the respective
-            # column from into the table in the database
+            # the form. If insert becomes false due to one of the inputs being
+            # invalid or when the amount of inputs from the form is equal to
+            # the amount of columns for a particular table
             while insert and len(values) < len(table_column_names):
                 for table_column in table_column_names:
                     answer = request.form.get(table_column)
+                    # If the field is not filled out
+                    # flash an error message and terminate the loop
                     if len(answer) == 0:
                         flash(f'''You have not entered anything into
                               the {table_column} field.''')
                         insert = False
+                    # If the answer to the field is longer than 200
+                    # characters, flash an error message
+                    # and terminate the loop
                     if len(answer) > 200:
                         flash(f'''Input is longer than 200 characters
                               in {table_column} field.''')
                         insert = False
+                    # if there is a single quote in the anser
+                    # flash an error message
+                    # and terminate the loop
                     elif "'" in answer:
                         flash(f'''You used single quotes in {table_column}.
                               Do not use single quotes please''')
                         insert = False
                     else:
-                        # if the column is the password column in the
-                        # Login_Info, hash the answer before putting it
-                        # in the database
+                        # if the column is the password column in
+                        # the Login_Info, hash the answer before
+                        # putting it in the database
                         if table_name == "Login_Info" and table_column == "password":
                             answer = generate_password_hash(answer,
                                                             method='pbkdf2')
+                        # if the column is in the list of foreign key columns
+                        # for a particular table
                         if table_column in table_foreign_key_names:
                             index = table_foreign_key_names.index(table_column)
+                            # Get the table linked to that foreign key column
                             foreign_key_table = table_foreign_key_tables[index]
+                            # Get the names of the possible options for the
+                            # foreign key columns
                             foreign_key_datalist = \
                                 table_columns_dict[table_name][1][0][table_column]
+                            # Evaluating if the answer is in the list of valid
+                            # options fetched in the above variable
                             if answer not in foreign_key_datalist:
+                                # Flash an error message
+                                # and terminate the loop if it is not
                                 flash(f'''Input is not available as an option
                                       in the {table_column} field''')
                                 insert = False
                             else:
+                                # if a valid option was chosen, fetch the id
+                                # linked with the name from the linked table
+                                # this id will be inserted into the database
                                 answer = \
                                     alt_sql(True, "SELECT id FROM %s WHERE name = '%s'" %
                                             (foreign_key_table, answer))[0]
+                    # add the valid answer to the list of values to
+                    # be added into the databaseß
                     values.append(answer)
+            # turn the list of columns in a table into a tuple
+            # in preparation for insertion into the database
             table_column_names = tuple(table_column_names)
             if insert:
+                # If no invalid answers were given in the form
+                # insert the values in the values list
                 sql_insert(table_name, table_column_names, values)
                 flash(f'''Information was successfully
                       inflitrated into {table_name}''')
@@ -727,6 +777,7 @@ def logout():
 
 @app.errorhandler(404)
 def error(e):
+    # rendering the 404 page for errors
     return render_template("404.html")
 
 

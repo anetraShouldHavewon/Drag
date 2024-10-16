@@ -24,7 +24,7 @@
     src: url(/static/fonts/Bungee_Outline/BungeeOutline-Regular.ttf);
 }
 /*General Styling*/
-body{
+body{ 
     width: 100vw;
     margin: 0;
 }
@@ -37,6 +37,7 @@ main{
     background-attachment: fixed;
     background-repeat: repeat;
     padding-top: 64px;
+    min-width: 1500px;
     width: 120vw;
 }
 
@@ -948,17 +949,21 @@ footer{
     padding-top: 5px;
     padding-left: 60px;
     background-color: #675876;
-    height: 20%; 
-    width: 115vw;
+    min-height: 100px;
+    height: 8vh; 
+    min-width: 1440px;
+    width: 120vw;
 }
 
 .footer_h2{
     color: white;
+    font-size: 20px;
 }
 
 .footer_h2_alt{
     color: white;
     padding-left: 370px;
+    font-size: 20px;
 }
 .footer_credit{
     color: #9b57ef;
