@@ -5,6 +5,15 @@
     <div class = "drag_queen_info">
         <div>
             <mark class = "drag_queen_quote"><h2>{{iconic_quote}}</h2></mark>
+            {% if city == None or city == "None" %}
+                {% set city = "[data not yet added to database]" %}
+            {% endif %}
+            {% if age == None or age == "None" %}
+                {% set age = "[data not yet added to database]" %}
+            {% endif %}
+            {% if specialty_skills == None or specialty_skills == "None" %}
+                {% set specialty_skills = "[data not yet added to database]" %}
+            {% endif %}
             <h3>City: {{city}}</h3>
             <h3>Age: {{age}}</h3>
             <h3>Specialty Skills: {{specialty_skills}}</h3>
@@ -12,9 +21,15 @@
     </div>
     <div class = "drag_queen_image_container">
         <div class="drag_queen_card">
+            {% if img_link == None or img_link == "None" %}
+                <div class="drag_queen_image">
+                    <h3>Image not found. We are not sorry</h3>
+                </div>
+            {% else %}
             <div class = "drag_queen_image">
-                <img class="drag_queen_img" src = "/static/photos/drag_queen_profile/{{id}}.webp" alt="queen_img_not_found">
+                <img class="drag_queen_img" src = "/static/photos/drag_queen_profile/{{img_link}}" alt="queen_img_not_found">
             </div>
+            {% endif %}
                 <h2>{{name}}</h2>
         </div>
     </div>

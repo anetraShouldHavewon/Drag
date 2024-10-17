@@ -349,6 +349,7 @@ def drag_queen_info(id):
     age = drag_queen_info[4]
     iconic_quote = drag_queen_info[6]
     img_credit = drag_queen_info[5]
+    img_link = drag_queen_info[7]
 
     return render_template("drag_queen_info.html",
                            id=id,
@@ -358,6 +359,7 @@ def drag_queen_info(id):
                            drag_queen=drag_queen_info,
                            iconic_quote=iconic_quote,
                            img_credit=img_credit,
+                           img_link=img_link,
                            title="Drag Queen Information")
 
 

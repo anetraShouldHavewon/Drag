@@ -144,10 +144,73 @@ def sql_insert(table, column, value):
 #dash_string = input("HEYY: ")
 
 #print(no_dash(dash_string))
-
-
-
-
+id = 30
+episode_queens = fetchall_info_list('''SELECT Drag_Queens.name,
+                                            Placings.name FROM
+                                            Drag_Queen_Episodes JOIN
+                                            Drag_Queens ON
+                                            Drag_Queen_Episodes.drag_queen_id =
+                                            Drag_Queens.id JOIN Placings ON
+                                            Drag_Queen_Episodes.placing_id =
+                                            Placings.id WHERE
+                                            episode_id = ?''', id, 0)
+episode_queens_ids = fetchall_info_list('''SELECT Drag_Queens.id,
+                                        Placings.name FROM
+                                        Drag_Queen_Episodes JOIN
+                                        Drag_Queens ON
+                                        Drag_Queen_Episodes.drag_queen_id
+                                        = Drag_Queens.id JOIN Placings
+                                        ON
+                                        Drag_Queen_Episodes.placing_id
+                                        = Placings.id WHERE episode_id
+                                        = ?''', id, 0)
+episode_placing_ids = fetchall_info_list('''SELECT
+                                            Drag_Queen_Episodes.
+                                            placing_id FROM
+                                            Drag_Queen_Episodes
+                                            JOIN Drag_Queens ON
+                                            Drag_Queen_Episodes.
+                                            drag_queen_id =
+                                            Drag_Queens.id JOIN
+                                            Placings ON
+                                            Drag_Queen_Episodes.placing_id =
+                                            Placings.id WHERE episode_id =
+                                            ?''', id, 0)
+# Ordering the queens in an episode based on their particular rank
+# within the episode
+# This is to ensure that the queens are shown in the correct order from
+# the winner to the eliminated queens
+safe_queens = {"drag_queen_ids": [], "drag_queen_names": []}
+immune = {"drag_queen_ids": [], "drag_queen_names": []}
+winner = {"drag_queen_ids": [], "drag_queen_names": []}
+top_2 = {"drag_queen_ids": [], "drag_queen_names": []}
+eliminated = {"drag_queen_ids": [], "drag_queen_names": []}
+bottom_2 = {"drag_queen_ids": [], "drag_queen_names": []}
+# Evaluate the positions of the queens for a particular episode and
+# add their names and ids to particular dictionaries above
+# as values
+for index in range(len(episode_queens)):
+    if episode_placing_ids[index] == 4:
+        safe_queens["drag_queen_ids"].append(episode_queens_ids[index])
+        safe_queens["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 1:
+        immune["drag_queen_ids"].append(episode_queens_ids[index])
+        immune["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 8:
+        winner["drag_queen_ids"].append(episode_queens_ids[index])
+        winner["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 7:
+        top_2["drag_queen_ids"].append(episode_queens_ids[index])
+        top_2["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 2:
+        eliminated["drag_queen_ids"].append(episode_queens_ids[index])
+        eliminated["drag_queen_names"].append(episode_queens[index])
+    if episode_placing_ids[index] == 6:
+        bottom_2["drag_queen_ids"].append(episode_queens_ids[index])
+        bottom_2["drag_queen_names"].append(episode_queens[index])
+queen_rankings = [winner, top_2, safe_queens, bottom_2, eliminated,
+                    immune]
+print(queen_rankings[0]["drag_queen_ids"])
 
 
 
