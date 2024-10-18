@@ -7,9 +7,15 @@
         <a href = "/season_info/{{latest_season_ids[index]}}">
             <div class = "home_franchise_poster_lineup">
                 <div class="home_franchise_poster">
-                    <img src = "/static/photos/seasons/{{latest_season_ids[index]}}.webp" alt="img not found">
-                </div>
+                {% if latest_season_imgs[index] == None or latest_season_imgs[index] == "None" %}
+                    <div class="home_franchise_poster_error">
+                        <h3>Image not found. We are not sorry</h3>
+                    </div>
+                {% else %}
+                    <img src = "/static/photos/seasons/{{latest_season_imgs[index]}}" alt="img not found">
+                {% endif %}
                 <h3>{{latest_season_names[index]}}</h3>
+                </div>
             </div>
         </a>
         {% endfor %} 
@@ -20,18 +26,24 @@
 <div class = "home_franchise" id = "franchise_id{{franchise_ids[index]}}">
     {% set season_ids = franchise_dict[franchise_names[index]][0] %}
     {% set season_names = franchise_dict[franchise_names[index]][1] %}
+    {% set season_imgs = franchise_dict[franchise_names[index]][2] %}
     <h2>{{franchise_names[index]}}</h2> 
     <div class = "home_franchises_lineup">
         {% for index in range(season_names|length) %} <!--change to latest-->
-        <div class = "home_franchise_poster_lineup">
-            <a href = "/season_info/{{season_ids[index]}}">
-                
-                    <div class="home_franchise_poster">
-                        <img src = "/static/photos/seasons/{{season_ids[index]}}.webp" alt="img not found">
-                    </div>
-                    <h3>{{season_names[index]}}</h3>
-            </a>
-        </div>
+        <a href = "/season_info/{{season_ids[index]}}">
+            <div class = "home_franchise_poster_lineup">
+                <div class="home_franchise_poster">
+                    {% if season_imgs[index] == None or season_imgs[index] == "None" %}
+                            <div class="home_franchise_poster_error">
+                                <h3>Image not found. We are not sorry</h3>
+                            </div>
+                    {% else %}
+                        <img src = "/static/photos/seasons/{{season_imgs[index]}}" alt="img not found">
+                    {% endif %}
+                </div>
+                <h3>{{season_names[index]}}</h3>
+            </div>
+        </a>
         {% endfor %} 
     </div>
 </div>

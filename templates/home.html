@@ -15,10 +15,14 @@
         {% for index in range(franchise_season_ids|length) %}
         <div class = "home_franchise_poster_lineup">
             <a href = "/seasons#franchise_id{{franchise_ids[index]}}">
-                
                     <div class="home_franchise_poster">
-                        <img src = "/static/photos/seasons/{{franchise_season_ids[index]}}.webp" alt="img not found">
-                    
+                        {% if franchise_img_links[index] == None or franchise_img_links[index] == "None" %}
+                            <div class="home_franchise_poster_error">
+                                <h3>Image not found. We are not sorry</h3>
+                            </div>
+                        {% else %}
+                            <img src = "/static/photos/seasons/{{franchise_img_links[index]}}" alt="img not found">
+                        {% endif %}
                     <h3>{{franchise_names[index]}}</h3>
                 </div>
             </a>

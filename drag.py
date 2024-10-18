@@ -97,15 +97,19 @@ def no_dash(table_name):
 @app.route("/")
 def home():
     # Getting the information latest season across all the franchises
-    # in Drag Race
+    # in Drag Race such as the ids, names and image links
     franchise_ids = fetchall_info_list("SELECT id FROM Franchises", None, 0)
     franchise_names = fetchall_info_list("SELECT name FROM Franchises", None,
                                          0)
     franchise_season_ids = []
+    franchise_img_links = []
     for id in franchise_ids:
         franchise_season_id = sql(True, '''SELECT id, MAX(release_year)
                                FROM Seasons WHERE franchise_id = ?''', id)[0]
         franchise_season_ids.append(franchise_season_id)
+        franchise_img_link = sql(True, '''SELECT img_link, MAX(release_year)
+                               FROM Seasons WHERE franchise_id = ?''', id)[0]
+        franchise_img_links.append(franchise_img_link)
     # Randomly drawing out the id and names of five drag queens
     drag_queen_names = ["Angeria Paris VanMicheals"]
     drag_queen_ids = [15]
@@ -129,6 +133,7 @@ def home():
                            franchise_ids=franchise_ids,
                            franchise_names=franchise_names,
                            franchise_season_ids=franchise_season_ids,
+                           franchise_img_links=franchise_img_links,
                            title="Home")
 
 
@@ -141,6 +146,10 @@ def seasons():
     latest_season_names = fetchall_info_list('''SELECT name FROM Seasons WHERE
                                     release_year = (SELECT MAX(release_year)
                                     FROM Seasons)''', None, 0)
+    latest_season_imgs = fetchall_info_list('''SELECT img_link FROM Seasons
+                                            WHERE release_year =
+                                            (SELECT MAX(release_year)
+                                            FROM Seasons)''', None, 0)
     # Getting the ids and names of all the seasons and grouping them by the
     # franchises they are in
     franchise_dict = {}
@@ -153,11 +162,15 @@ def seasons():
                                       franchise_id = ?''', franchise_id, 0)
         season_names = fetchall_info_list('''SELECT name FROM Seasons WHERE
                                       franchise_id = ?''', franchise_id, 0)
-        franchise_dict[franchise_names[index]] = [season_ids, season_names]
+        season_imgs = fetchall_info_list('''SELECT img_link FROM Seasons WHERE
+                                      franchise_id = ?''', franchise_id, 0)
+        franchise_dict[franchise_names[index]] = [season_ids, season_names,
+                                                  season_imgs]
 
     return render_template("seasons.html",
                            latest_season_ids=latest_season_ids,
                            latest_season_names=latest_season_names,
+                           latest_season_imgs=latest_season_imgs,
                            franchise_dict=franchise_dict,
                            franchise_names=franchise_names,
                            franchise_ids=franchise_ids,
@@ -178,6 +191,8 @@ def season_info(id):
                       Seasons WHERE id = ?''', id)[0].upper()
     season_credit = sql(True, '''SELECT info_source FROM
                         Seasons WHERE id = ?''', id)[0]
+    season_hero = sql(True, '''SELECT img_hero_link FROM
+                      Seasons WHERE id = ?''', id)[0]
     season_queens_ids = fetchall_info_list('''SELECT
                                            Drag_Queen_Season.drag_queen_id
                                            FROM Drag_Queen_Season JOIN
@@ -206,6 +221,7 @@ def season_info(id):
 
     return render_template("season_info.html",
                            season_id=id,
+                           season_hero=season_hero,
                            season_credit=season_credit,
                            season_name=season_name,
                            season_queens_ids=season_queens_ids,
@@ -598,7 +614,7 @@ def admin(id):
                         column_names.append(column_name)
                 # Removing the dashes from each column in the column name list
                 # And making a list out of all the names
-                no_dash_column_names = []
+                no_dash_column_names = list(map(no_dash, column_names))
                 for column in column_names:
                     no_dash_column = no_dash(column)
                     no_dash_column_names.append(no_dash_column)

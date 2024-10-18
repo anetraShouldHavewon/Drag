@@ -8,18 +8,16 @@
                 {% for message in messages %}
                     <h3>{{message}}</h3>
                 {% endfor %}
-            {% else %}
-                <h3>Login</h3>
             {% endif %}
         {% endwith %}
         </div>
         <form action="/login" method="post">
             <div class="login_form">
                 <div class="login_form_input">
-                    <input type="text" name="user" placeholder="Username" class="login_input" maxlength="200">
+                    <input type="text" name="user" placeholder="Username" class="login_input">
                 </div>
                 <div class="login_form_input">
-                    <input type="password" name="pass" placeholder="Password" class="login_input" maxlength="200">
+                    <input type="password" name="pass" placeholder="Password" class="login_input">
                 </div>
                 <div class="login_form_input">
                     <input type="submit" class="login_submit">

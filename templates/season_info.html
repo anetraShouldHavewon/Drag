@@ -2,8 +2,12 @@
 {% block content %}
 <div class = "season_info_hero_image_container">
     <div class="season_info_hero_image_background">
-        <img class = "season_info_hero_image" src = "/static/photos/season_info_pages/{{season_id}}.webp" alt="img not found">
-    </div>
+        {% if season_hero == None or season_hero == "None" %}
+            <h3>Image not found. We are not sorry</h3>
+        {% else %}
+            <img class = "season_info_hero_image" src = "/static/photos/season_info_pages/{{season_hero}}" alt="img not found">
+        {% endif %}
+        </div>
 </div>
 
 <div class="episode_padding">
@@ -38,7 +42,11 @@
         <a href = "/episode_info/{{season_episodes_ids[index]}}">
             <div class = "episode_container">
                 <div class="seasons_episodes_img">
-                    <img class = "episode" src = "/static/photos/episodes/{{season_episodes_imgs[index]}}" alt="img not found">
+                    {% if season_episodes_imgs[index] == None or season_episodes_imgs[index] == "None" %}
+                        <h3>Image not found. We are not sorry</h3>
+                    {% else %}
+                        <img class = "episode" src = "/static/photos/episodes/{{season_episodes_imgs[index]}}" alt="img not found">
+                    {% endif %}
                 </div>
                 <div class = "episode_filter"></div>
                 <h3 class = "episode_name">{{season_episodes_names[index]}}</h3>

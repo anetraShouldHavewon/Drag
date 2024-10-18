@@ -14,7 +14,13 @@
         <h3>Special Guest: {{finale_special_guest}}</h3>
     </div>
     <div class = "episode_img_container">
-        <img class="episode_img" src="/static/photos/episodes/{{episode_img}}" alt="img not found">
+        {% if episode_img == None or episode_img == "None" %}
+        <div class="episode_error">
+            <h3>Image not found. We are not sorry</h3>
+        </div>
+        {% else %}
+        <img class="episode_img" src="/static/photos/episodes/{{episode_img}}" alt-="img not found">
+        {% endif %}
     </div>
 </div>
 
