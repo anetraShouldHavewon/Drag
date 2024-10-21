@@ -58,7 +58,7 @@
                         {% if column in foreign_columns %}
                         <div class="admin_input">
                             <label for="{{column}}"><h3>{{no_dash_column}}</h3></label>
-                            <input list="{{column}}" name="{{column}}">
+                            <input list="{{column}}" name="{{column}}" maxlength="200">
                             <datalist id="{{column}}">
                                 {% set foreign_key_datalist = foreign_key_column_info[0][column] %}
                                 {% for option in foreign_key_datalist %}

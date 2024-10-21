@@ -39,6 +39,8 @@ def sql(fetchone, query, constraint):
 
 
 def alt_sql(fetchone, query):
+    '''Alternative sql function that allows users to add data without
+    needing constraints'''
     connection = sqlite3.connect("drag_queen.db")
     cursor = connection.cursor()
     if fetchone is True:
@@ -50,7 +52,7 @@ def alt_sql(fetchone, query):
 
 
 def alt_fetchall(fetch_query, column_index):
-    # Converting the output of fetchall queries into a list
+    ''' Converting the output of fetchall queries into a list'''
     fetchall_output = alt_sql(False, fetch_query)
     return_list = []
     for item in fetchall_output:
@@ -96,6 +98,7 @@ def no_dash(table_name):
 
 @app.route("/")
 def home():
+    '''Home page'''
     # Getting the information latest season across all the franchises
     # in Drag Race such as the ids, names and image links
     franchise_ids = fetchall_info_list("SELECT id FROM Franchises", None, 0)
@@ -139,6 +142,8 @@ def home():
 
 @app.route("/seasons")
 def seasons():
+    '''Seasons Page: allows users to browse the different seasons of drag
+    race of the various franchises of Drag Race'''
     # Getting the ids and names of the most recently released seasons
     latest_season_ids = fetchall_info_list('''SELECT id FROM Seasons WHERE
                                     release_year = (SELECT MAX(release_year)
@@ -179,6 +184,8 @@ def seasons():
 
 @app.route("/season_info/<int:id>")
 def season_info(id):
+    '''Season Information: information about the queens and seasons in 
+    a particular season are shown'''
     # Leading users to the error 404 page when the id is not in a list
     # of existing season_ids
     season_ids = fetchall_info_list("SELECT id FROM Seasons", None, 0)
@@ -234,6 +241,8 @@ def season_info(id):
 
 @app.route("/drag_queens/<int:id>")
 def drag_queens(id):
+    '''Drag_Queens Page: Allows the user to browse for particular drag
+    queens by using various filters such as by season, age or city'''
     # Redirecting to the 404 page when all ids that are not between
     # 0 and 3
     if id > 3 or id < 0:
@@ -350,6 +359,7 @@ def drag_queens(id):
 
 @app.route("/drag_queen_info/<int:id>")
 def drag_queen_info(id):
+    '''Drag_Queen info: Shows information about individual queens'''
     # Getting a list of all the existing ids in the drag queens table
     # If the id in the URL is not in this list, redirect to the error
     # 404 page
@@ -381,6 +391,8 @@ def drag_queen_info(id):
 
 @app.route("/episode_info/<int:id>")
 def episode_info(id):
+    '''Episode_info: Shows the challenges, runway theme and the rankings of
+    the queens of particular seasons'''
     # Fetch a list of all the xisting ids in the episodes table
     # If the id section of the URL is not in the list fetched
     # Redirect to the error 404 page
@@ -540,6 +552,8 @@ def episode_info(id):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    '''Page that allows the user to log in which will allow tham
+    to access the admin page'''
     # Code for the login and logout route courtesy of Sir Steven Rodkiss
     # getting the username and password from the
     # form in login.html
@@ -592,6 +606,7 @@ def login():
 
 @app.route("/admin/<int:id>", methods=["GET", "POST"])
 def admin(id):
+    '''Admin route where you can add information directly to the database'''
     # If the user is logged in, allow the user to see the admin page
     # when the admin route is entered into the URL
     # else, redirect them to the home page
@@ -603,10 +618,9 @@ def admin(id):
 
             def get_column_names(self):
                 # Get the names of the columns of a table
-                column_names_query = alt_sql(False, '''PRAGMA
-                                             table_info({table_name})
-                                             '''.format
-                                             (table_name=self.name))
+                column_names_query = alt_sql(False, f'''PRAGMA
+                                             table_info({self.name})
+                                             ''')
                 column_names = []
                 for column in column_names_query:
                     if column[5] != 1:
@@ -626,25 +640,21 @@ def admin(id):
             def get_foreign_keys(self):
                 # Checking if a table has foreign keys by using the
                 # PRAGMA foreign_key_list query
-                foreign_key_info = alt_sql(False, '''PRAGMA foreign_key_list
-                                           ({table_name})'''.format
-                                           (table_name=self.name))
-                # If the query does return a result for 
+                foreign_key_info = alt_sql(False, f'''PRAGMA foreign_key_list
+                                           ({self.name})''')
+                # If the query does return a result for
                 # showing that the table does contain foreign keys
                 if len(foreign_key_info) != 0:
                     # Gets the columns in the table that are foreign keys
-                    foreign_key_columns = alt_fetchall('''PRAGMA
+                    foreign_key_columns = alt_fetchall(f'''PRAGMA
                                                        foreign_key_list
-                                                       ({table_name})
-                                                       '''.format
-                                                       (table_name=self.name),
+                                                       ({self.name})''',
                                                        3)
                     # Gets the tables that the foreign keys are linked to
-                    foreign_key_tables = alt_fetchall('''PRAGMA
+                    foreign_key_tables = alt_fetchall(f'''PRAGMA
                                                       foreign_key_list
-                                                      ({table_name})
-                                                      '''.format
-                                                      (table_name=self.name),
+                                                      ({self.name})
+                                                      ''',
                                                       2)
                     foreign_key_table_columns = {}
                     # For each foreign key column, get all the names of the
@@ -654,11 +664,9 @@ def admin(id):
                     # table in the database as the key in the dictionary
                     for index, column in enumerate(foreign_key_columns):
                         foreign_key_table = foreign_key_tables[index]
-                        foreign_key_datalist = alt_fetchall('''SELECT name
-                                                            FROM {table_name}
-                                                            '''.format
-                                                            (table_name=
-                                                             foreign_key_table),
+                        foreign_key_datalist = alt_fetchall(f'''SELECT name
+                                                            FROM {foreign_key_table}
+                                                            ''',
                                                             0)
                         foreign_key_table_columns[column] = \
                             foreign_key_datalist
@@ -787,6 +795,7 @@ def admin(id):
 
 @app.route("/logout")
 def logout():
+    '''Logout button'''
     # if the login button is pressed, end the session and redirect to
     # the home page
     session['login'] = False
@@ -795,6 +804,7 @@ def logout():
 
 @app.errorhandler(404)
 def error(e):
+    '''Error Page'''
     # rendering the 404 page for errors
     return render_template("404.html")
 
